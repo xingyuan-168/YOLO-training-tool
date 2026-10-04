@@ -1,17 +1,18 @@
 {
   "bundle": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-relocation\\YOLO 工作台",
+  "executable_sha256": "28cc3768b92e386bc20444a6950446769ee0f50f9454ec6c95c2629a40b43cf5",
   "network_check": "Python socket.connect/create_connection disabled in worker processes",
   "steps": [
     {
       "kind": "train",
       "runtime": "train",
-      "elapsed_seconds": 17.047000000005937,
+      "elapsed_seconds": 17.10899999999674,
       "state": "succeeded",
       "result": {
-        "run_dir": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\jobs\\5d361dd6d73042f1815d1f1a29b4a731\\train",
-        "best": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\jobs\\5d361dd6d73042f1815d1f1a29b4a731\\train\\weights\\best.pt",
-        "last": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\jobs\\5d361dd6d73042f1815d1f1a29b4a731\\train\\weights\\last.pt",
-        "resume_checkpoint": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\jobs\\5d361dd6d73042f1815d1f1a29b4a731\\train\\weights\\resume.pt",
+        "run_dir": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\jobs\\3e388593b23f427ca79b327860ff6da9\\train",
+        "best": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\jobs\\3e388593b23f427ca79b327860ff6da9\\train\\weights\\best.pt",
+        "last": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\jobs\\3e388593b23f427ca79b327860ff6da9\\train\\weights\\last.pt",
+        "resume_checkpoint": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\jobs\\3e388593b23f427ca79b327860ff6da9\\train\\weights\\resume.pt",
         "epochs_completed": 1,
         "resumed": false,
         "start_epoch": 1,
@@ -21,24 +22,24 @@
           "metrics/mAP50(B)": 0.0,
           "metrics/mAP50-95(B)": 0.0
         },
-        "results_csv": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\jobs\\5d361dd6d73042f1815d1f1a29b4a731\\train\\results.csv",
+        "results_csv": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\jobs\\3e388593b23f427ca79b327860ff6da9\\train\\results.csv",
         "classes": [
           "红色方块",
           "蓝色圆形"
         ],
         "stopped": false,
         "plots": [
-          "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\jobs\\5d361dd6d73042f1815d1f1a29b4a731\\train\\BoxF1_curve.png",
-          "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\jobs\\5d361dd6d73042f1815d1f1a29b4a731\\train\\BoxPR_curve.png",
-          "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\jobs\\5d361dd6d73042f1815d1f1a29b4a731\\train\\BoxP_curve.png",
-          "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\jobs\\5d361dd6d73042f1815d1f1a29b4a731\\train\\BoxR_curve.png",
-          "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\jobs\\5d361dd6d73042f1815d1f1a29b4a731\\train\\confusion_matrix.png",
-          "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\jobs\\5d361dd6d73042f1815d1f1a29b4a731\\train\\confusion_matrix_normalized.png",
-          "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\jobs\\5d361dd6d73042f1815d1f1a29b4a731\\train\\results.png"
+          "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\jobs\\3e388593b23f427ca79b327860ff6da9\\train\\BoxF1_curve.png",
+          "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\jobs\\3e388593b23f427ca79b327860ff6da9\\train\\BoxPR_curve.png",
+          "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\jobs\\3e388593b23f427ca79b327860ff6da9\\train\\BoxP_curve.png",
+          "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\jobs\\3e388593b23f427ca79b327860ff6da9\\train\\BoxR_curve.png",
+          "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\jobs\\3e388593b23f427ca79b327860ff6da9\\train\\confusion_matrix.png",
+          "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\jobs\\3e388593b23f427ca79b327860ff6da9\\train\\confusion_matrix_normalized.png",
+          "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\jobs\\3e388593b23f427ca79b327860ff6da9\\train\\results.png"
         ]
       },
       "error": null,
-      "run_dir": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\jobs\\5d361dd6d73042f1815d1f1a29b4a731",
+      "run_dir": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\jobs\\3e388593b23f427ca79b327860ff6da9",
       "gui_imported_heavy": [],
       "offline_guard_active": true,
       "missing_glyph_warning": false
@@ -46,7 +47,7 @@
     {
       "kind": "evaluate",
       "runtime": "train",
-      "elapsed_seconds": 9.077999999994063,
+      "elapsed_seconds": 5.10899999999674,
       "state": "succeeded",
       "result": {
         "source": "ultralytics_standard_evaluation",
@@ -59,27 +60,27 @@
           "fitness": 0.0
         },
         "speed": {
-          "preprocess": 0.15690000145696104,
-          "inference": 42.28599999623839,
-          "loss": 0.0010500007192604244,
-          "postprocess": 0.5403500035754405
+          "preprocess": 0.05794999742647633,
+          "inference": 8.627249997516628,
+          "loss": 0.0007999988156370819,
+          "postprocess": 0.4422999991220422
         },
         "classes": [
           "红色方块",
           "蓝色圆形"
         ],
-        "save_dir": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\jobs\\3b737fcda6de4da2864f7ebc7c779d0d\\evaluation",
+        "save_dir": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\jobs\\2f847699b2344b1cb235d0905b31b066\\evaluation",
         "plots": [
-          "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\jobs\\3b737fcda6de4da2864f7ebc7c779d0d\\evaluation\\BoxF1_curve.png",
-          "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\jobs\\3b737fcda6de4da2864f7ebc7c779d0d\\evaluation\\BoxPR_curve.png",
-          "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\jobs\\3b737fcda6de4da2864f7ebc7c779d0d\\evaluation\\BoxP_curve.png",
-          "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\jobs\\3b737fcda6de4da2864f7ebc7c779d0d\\evaluation\\BoxR_curve.png",
-          "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\jobs\\3b737fcda6de4da2864f7ebc7c779d0d\\evaluation\\confusion_matrix.png",
-          "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\jobs\\3b737fcda6de4da2864f7ebc7c779d0d\\evaluation\\confusion_matrix_normalized.png"
+          "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\jobs\\2f847699b2344b1cb235d0905b31b066\\evaluation\\BoxF1_curve.png",
+          "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\jobs\\2f847699b2344b1cb235d0905b31b066\\evaluation\\BoxPR_curve.png",
+          "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\jobs\\2f847699b2344b1cb235d0905b31b066\\evaluation\\BoxP_curve.png",
+          "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\jobs\\2f847699b2344b1cb235d0905b31b066\\evaluation\\BoxR_curve.png",
+          "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\jobs\\2f847699b2344b1cb235d0905b31b066\\evaluation\\confusion_matrix.png",
+          "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\jobs\\2f847699b2344b1cb235d0905b31b066\\evaluation\\confusion_matrix_normalized.png"
         ]
       },
       "error": null,
-      "run_dir": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\jobs\\3b737fcda6de4da2864f7ebc7c779d0d",
+      "run_dir": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\jobs\\2f847699b2344b1cb235d0905b31b066",
       "gui_imported_heavy": [],
       "offline_guard_active": true,
       "missing_glyph_warning": false
@@ -87,11 +88,11 @@
     {
       "kind": "export",
       "runtime": "train",
-      "elapsed_seconds": 8.531000000002678,
+      "elapsed_seconds": 5.2189999999973224,
       "state": "succeeded",
       "result": {
-        "package_dir": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\exports\\cq-onnx-20261004-220728-f9cb28ab",
-        "manifest": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\exports\\cq-onnx-20261004-220728-f9cb28ab\\manifest.json",
+        "package_dir": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\exports\\cq-onnx-20261004-221836-61690fca",
+        "manifest": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\exports\\cq-onnx-20261004-221836-61690fca\\manifest.json",
         "profile": "cq",
         "format": "onnx",
         "validation": {
@@ -110,7 +111,7 @@
               2100
             ]
           ],
-          "elapsed_seconds": 0.38009109999984503,
+          "elapsed_seconds": 0.21197550000215415,
           "input": "deterministic_ramp",
           "scope": "isolated_cpu_execution_only",
           "target_device_accepted": false
@@ -121,7 +122,7 @@
         ]
       },
       "error": null,
-      "run_dir": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\jobs\\89526caedb6c4889987bd79798fe6cd1",
+      "run_dir": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\jobs\\7a627b7dfabc499484d1ea521128d03b",
       "gui_imported_heavy": [],
       "offline_guard_active": true,
       "missing_glyph_warning": false
@@ -129,18 +130,18 @@
     {
       "kind": "infer",
       "runtime": "inference",
-      "elapsed_seconds": 2.5319999999919673,
+      "elapsed_seconds": 1.5939999999973224,
       "state": "succeeded",
       "result": {
         "kind": "infer",
         "frame_count": 1,
         "saved_count": 0,
-        "results_path": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\jobs\\931d40b34da94756b48bec1620e176ac\\detections.jsonl",
+        "results_path": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\jobs\\e1ac747af1a7460bb7eb9ee3697fc4d0\\detections.jsonl",
         "cancelled": false,
-        "elapsed_seconds": 0.8472987999994075,
+        "elapsed_seconds": 0.4977749999961816,
         "detections": [],
-        "elapsed_ms": 17.730799998389557,
-        "engine_latency_us": 17546,
+        "elapsed_ms": 9.160400004475378,
+        "engine_latency_us": 9053,
         "runtime": {
           "handle": 1,
           "runtime_flavor": "core",
@@ -157,7 +158,7 @@
           "adapter_name": "",
           "mixed_cpu_fallback": false,
           "selection_basis": "explicit",
-          "calibration_key": "845ea42d40954d752aad461ba19b3de3874985511040aa938f40d251b6c5d421",
+          "calibration_key": "b736c58a06177ffaf8677905360cf8f5bc91a41801c6de4abe5db7a929d5c63b",
           "cpu_calibration_ms": -1.0,
           "directml_calibration_ms": -1.0,
           "precision": "fp32",
@@ -183,8 +184,8 @@
           "fixed_iou": 0.45,
           "single_session": true
         },
-        "model_sha256": "0e55556564523de9e5731e06a332425c912c69e7bc2890ac17195244f680d8c3",
-        "model_path": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\exports\\cq-onnx-20261004-220728-f9cb28ab",
+        "model_sha256": "12c2d2f0e90526e5bcd573eba643574d233b911d6808e36f857694e952c941ff",
+        "model_path": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\exports\\cq-onnx-20261004-221836-61690fca",
         "backend": "cq",
         "family": "yolov8",
         "classes": [
@@ -195,26 +196,26 @@
         "iou": 0.45,
         "source": {
           "kind": "image",
-          "path": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\assets\\05f72385cea9e5c01cb19a7bb7019250b4c9f2e1715e5340b401d0b080280d45.png",
-          "session": "source-20261004T140733.649253Z",
+          "path": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\assets\\05f72385cea9e5c01cb19a7bb7019250b4c9f2e1715e5340b401d0b080280d45.png",
+          "session": "source-20261004T141839.862916Z",
           "frame_sequence": 1,
-          "source_started_monotonic": 121461.5985832,
-          "captured_at": "2026-10-04T14:07:33.677780+00:00"
+          "source_started_monotonic": 122127.8118556,
+          "captured_at": "2026-10-04T14:18:39.877922+00:00"
         },
         "frame_number": 1,
-        "end_to_end_ms": 47.217999992426485,
-        "last_frame_path": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\jobs\\931d40b34da94756b48bec1620e176ac\\last-frame.png"
+        "end_to_end_ms": 24.820699996780604,
+        "last_frame_path": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\jobs\\e1ac747af1a7460bb7eb9ee3697fc4d0\\last-frame.png"
       },
       "error": null,
-      "run_dir": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\jobs\\931d40b34da94756b48bec1620e176ac",
+      "run_dir": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\jobs\\e1ac747af1a7460bb7eb9ee3697fc4d0",
       "gui_imported_heavy": [],
       "offline_guard_active": true,
       "missing_glyph_warning": false
     }
   ],
   "python_probe": {
-    "snapshot": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\snapshots\\d6c6df2252b148cdb88ff1654cb5c24a",
-    "image": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-release-check\\中文 项目\\assets\\05f72385cea9e5c01cb19a7bb7019250b4c9f2e1715e5340b401d0b080280d45.png",
+    "snapshot": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\snapshots\\7875b6055cc54cafaff08d1fedbd110d",
+    "image": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\final-binary-check\\中文 项目\\assets\\05f72385cea9e5c01cb19a7bb7019250b4c9f2e1715e5340b401d0b080280d45.png",
     "prefix": "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-relocation\\YOLO 工作台\\runtime\\train",
     "sys_path": [
       "D:\\Projects-tools\\yolo训练工具\\.artifacts\\portable-relocation\\YOLO 工作台\\scripts",

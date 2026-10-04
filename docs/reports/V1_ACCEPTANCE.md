@@ -60,6 +60,6 @@ Frontend Gate 实际 `allowed=true`，用户批准记录为 `APPROVAL-2026100412
 Finish Gate 已执行，当前 **未通过**，原始结果保存在 [finish-gate.json](finish-gate.json)。其阻断为：
 
 1. 规则把独立 Python 运行环境中的标准库 `Lib/copy.py` 判为副本式版本文件。两个文件与基础 Python 原文件 SHA-256 完全一致，见 [governance-copy-module.json](governance-copy-module.json)。这不是项目的复制式源码版本；不删除必需标准库，不隐藏检测结果。
-2. Gate 内部的 GitHub 探测使用 5 秒上限并超时。独立 Git 远端访问及最终推送结果另行验证；不以此覆盖 Gate 的失败结果。
+2. Gate 内部的 GitHub 探测使用 5 秒上限并超时。独立 `git ls-remote --heads origin` 实际成功，用时 6.25 秒；最终推送另行验证，不以此覆盖 Gate 的失败结果。
 
 隔离子任务已全部合并，三个注册工作树已通过生命周期工具清理。项目记忆、开源调研与受影响文档已同步。此处不声明 Finish Gate 或待验硬件已经通过。
