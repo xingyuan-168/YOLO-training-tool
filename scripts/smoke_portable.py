@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import subprocess
@@ -45,6 +46,7 @@ def run(bundle: Path, destination: Path):
     train_python = bundle / "runtime" / "train" / "python.exe"
     results = {
         "bundle": str(bundle),
+        "executable_sha256": hashlib.sha256(executable.read_bytes()).hexdigest(),
         "network_check": "Python socket.connect/create_connection disabled in worker processes",
         "steps": [],
     }

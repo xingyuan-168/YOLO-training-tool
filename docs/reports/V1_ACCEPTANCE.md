@@ -52,3 +52,14 @@
 主要证据：`portable-report.json`、`export-parity.json`、`inference-soak.json`、`test-results.xml`、`frontend-gate.json` 和最终 `finish-gate.json`。构建清单记录 EXE SHA-256 与源文件哈希。界面证据见 [标注](screenshots/annotate-1366.png)、[验证](screenshots/verify-1366.png)、[日志](screenshots/logs-1366.png)、[设置](screenshots/settings-1366.png)。
 
 使用步骤与快捷键见 [USER_GUIDE.md](../USER_GUIDE.md)，第三方声明见 [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)。最终 Gate 以机器执行的 JSON 结果为准。
+
+## 工程 Gate 状态
+
+Frontend Gate 实际 `allowed=true`，用户批准记录为 `APPROVAL-20261004123628863266`。
+
+Finish Gate 已执行，当前 **未通过**，原始结果保存在 [finish-gate.json](finish-gate.json)。其阻断为：
+
+1. 规则把独立 Python 运行环境中的标准库 `Lib/copy.py` 判为副本式版本文件。两个文件与基础 Python 原文件 SHA-256 完全一致，见 [governance-copy-module.json](governance-copy-module.json)。这不是项目的复制式源码版本；不删除必需标准库，不隐藏检测结果。
+2. Gate 内部的 GitHub 探测使用 5 秒上限并超时。独立 Git 远端访问及最终推送结果另行验证；不以此覆盖 Gate 的失败结果。
+
+隔离子任务已全部合并，三个注册工作树已通过生命周期工具清理。项目记忆、开源调研与受影响文档已同步。此处不声明 Finish Gate 或待验硬件已经通过。
