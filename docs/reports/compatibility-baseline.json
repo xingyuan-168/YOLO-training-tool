@@ -1,0 +1,173 @@
+{
+  "created_at": "2026-10-04T03:25:47.720193+00:00",
+  "python": "3.12.13",
+  "platform": "Windows x64 / Intel UHD / CPU tests",
+  "cases": {
+    "cq": {
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 1.03,
+      "details": {
+        "version": "0.14.6",
+        "input_shape": [
+          1,
+          3,
+          320,
+          320
+        ],
+        "output_shapes": [
+          [
+            1,
+            10,
+            2100
+          ]
+        ],
+        "parity_exact": true,
+        "detection_count": 1931,
+        "runtime": {
+          "handle": 1,
+          "runtime_flavor": "core",
+          "ort_version": "1.24.4",
+          "ort_path": ".\\.runtimes\\inference\\Lib\\site-packages\\cq_ai_engine\\_native\\onnxruntime.dll",
+          "available_providers": [
+            "DmlExecutionProvider",
+            "CPUExecutionProvider"
+          ],
+          "requested": "cpu",
+          "active": "cpu",
+          "degraded": false,
+          "device_id": 0,
+          "adapter_name": "",
+          "mixed_cpu_fallback": false,
+          "selection_basis": "explicit",
+          "calibration_key": "906e1c65739e2178baed8d430941f6802e3c09e0983a10b57cbca94fe6c5b959",
+          "cpu_calibration_ms": -1.0,
+          "directml_calibration_ms": -1.0,
+          "precision": "fp32",
+          "tensorrt_version": "",
+          "cuda_version": 0,
+          "driver_version": 0,
+          "driver_file_version": "",
+          "driver_binary_sha256": "",
+          "execution_slots": 1,
+          "engine_cache_hit": false,
+          "cuda_graph": false,
+          "engine_build_us": 0,
+          "engine_cache_key": "",
+          "reason": "",
+          "session_count": 1,
+          "intra_op_threads": 4,
+          "input_width": 320,
+          "input_height": 320
+        },
+        "note": "UI screenshot at confidence 0.0; regression only, not business accuracy"
+      }
+    },
+    "ncnn": {
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 0.5,
+      "details": {
+        "ncnn_version": "1.0.20260526",
+        "output_shape": [
+          10,
+          8400
+        ],
+        "note": "CPU zero-input structural probe only; AScript Android acceptance remains pending"
+      }
+    },
+    "yolov8": {
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 37.65,
+      "details": {
+        "ultralytics": "8.4.7",
+        "torch": "2.9.1+cpu",
+        "opset": 12,
+        "output_shapes": [
+          [
+            1,
+            84,
+            2100
+          ]
+        ],
+        "note": "Nano architecture initialized without pretrained weights; forward and ONNX execution"
+      }
+    },
+    "yolo11": {
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 5.75,
+      "details": {
+        "ultralytics": "8.4.7",
+        "torch": "2.9.1+cpu",
+        "opset": 12,
+        "output_shapes": [
+          [
+            1,
+            84,
+            2100
+          ]
+        ],
+        "note": "Nano architecture initialized without pretrained weights; forward and ONNX execution"
+      }
+    },
+    "yolo26": {
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 5.61,
+      "details": {
+        "ultralytics": "8.4.7",
+        "torch": "2.9.1+cpu",
+        "opset": 12,
+        "output_shapes": [
+          [
+            1,
+            300,
+            6
+          ]
+        ],
+        "note": "Nano architecture initialized without pretrained weights; forward and ONNX execution"
+      }
+    },
+    "train": {
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 62.72,
+      "details": {
+        "epochs": 1,
+        "device": "cpu",
+        "resume_optimizer_preserved": true,
+        "result_csv": ".artifacts/compat/cpu-project-1791084111611601100/runs/smoke/results.csv",
+        "note": "Synthetic six-image pipeline check; not an accuracy measurement"
+      }
+    },
+    "legacy_ncnn": {
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 0.45,
+      "details": {
+        "ncnn_version": "1.0.20260526",
+        "output_shapes": [
+          [
+            40,
+            40,
+            70
+          ],
+          [
+            20,
+            20,
+            70
+          ],
+          [
+            10,
+            10,
+            70
+          ]
+        ],
+        "ascript_v8_compatible": false,
+        "note": "Raw multi-head layout; not the decoded single-output AScript contract"
+      }
+    }
+  }
+}

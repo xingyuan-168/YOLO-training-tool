@@ -71,7 +71,7 @@ updated_at: 2026-10-04
 - 可直接复用：NCNN Python 运行时、官方导出器。
 - 可二开：固定 640、单输出 [4+C,8400] 检查和示例。
 - 值得学习：in0 / out0 和加载释放。
-- 风险：旧多输出样板本机提取崩溃，必须独立进程试运行；零输入成功不等于 Android 真机验收。
+- 风险：NCNN Python Mat 引用 NumPy 内存，输入数组必须保持到提取完成。修正生命周期后两套样板均能执行；旧样板的多路原始输出仍不符合 AScript 契约。所有试运行保持进程隔离；零输入成功不等于 Android 真机验收。
 
 ### Datumaro / CVAT / Label Studio / Optuna / FiftyOne
 

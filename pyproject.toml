@@ -1,0 +1,49 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "yolo-workbench"
+version = "0.1.0"
+description = "Windows local YOLO annotation, training and deployment workbench"
+requires-python = ">=3.12,<3.13"
+dependencies = ["pillow==11.3.0", "pyyaml==6.0.2"]
+
+[project.optional-dependencies]
+gui = ["pyside6==6.10.2", "pyqtgraph==0.13.7", "psutil==7.0.0"]
+train = ["ultralytics==8.4.7", "torch==2.9.1", "torchvision==0.24.1", "onnx==1.19.1", "onnxruntime==1.23.2", "onnxslim>=0.1.71,<0.2"]
+inference = ["numpy==2.2.6", "onnx==1.19.1", "ncnn>=1.0.20250916"]
+capture = ["windows-capture>=1.4.2", "numpy==2.2.6"]
+
+[dependency-groups]
+dev = ["pytest==8.4.2", "ruff==0.14.14"]
+
+[tool.uv]
+environments = ["sys_platform == 'win32' and platform_machine == 'AMD64'"]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+torchvision = { index = "pytorch-cpu" }
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/yolo_workbench"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 110
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["yolo_workbench"]
+known-third-party = ["ultralytics", "ai_engine", "ncnn", "numpy", "onnx", "onnxruntime", "PIL", "yaml", "PySide6"]

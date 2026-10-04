@@ -1,0 +1,12 @@
+{
+  "gate": "frontend",
+  "allowed": false,
+  "findings": [
+    {
+      "code": "FRONTEND_APPROVAL_MISSING",
+      "message": "no approved frontend approval for scope 'YOLO-V1' in docs/design/UI_SPEC.md (record it with approval_record); approvals are read from the Git-tracked UI spec, never from call arguments",
+      "path": "docs/design/UI_SPEC.md",
+      "blocking": true
+    }
+  ]
+}
