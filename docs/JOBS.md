@@ -59,7 +59,7 @@ parameters = {
 
 TrainingConfig.effective 校验基础字段和专家白名单。快照必须包含 snapshot.json、data.yaml、非空 train/val、冻结类别和图像/标签哈希。每次训练/评估读取并验证快照，再为任务创建私有图像链接、独立标签及 data.yaml；Ultralytics cache 不写入原始快照。
 
-加载 PT/YAML 后，Worker 从模型内部的 `model.yaml.yaml_file` 验证实际架构系列；与配置不同或架构元数据无法识别时，在训练前拒绝执行。文件改名和界面选择不能把 YOLO11/26 权重标记为 YOLOv8，避免产生错误的训练 manifest 与恢复契约。
+加载 PT/YAML 后，Worker 从模型内部的 `model.yaml.yaml_file` 验证实际架构系列。官方早期 YOLOv8 权重没有此字段，通过内部 YAML 的标准 C2f 检测层连接结构识别；这一结构也保留在后续微调和恢复检查点中。外部 PT 路径和 `train_args.model` 不作为系列依据。与配置不同或架构元数据无法识别时，在训练前拒绝执行。文件改名和界面选择不能把 YOLO11/26 权重标记为 YOLOv8，避免产生错误的训练 manifest 与恢复契约。
 
 每轮 `on_model_save` 在 Ultralytics strip_optimizer 前原子生成 `train/weights/resume.pt`。该检查点保存未平均的原始训练权重、FP32 EMA、完整精度优化器、scaler、scheduler、早停状态、Python/NumPy/Torch/CUDA RNG、DataLoader generator、梯度。best.pt/last.pt 仍遵循 Ultralytics 推理权重输出习惯。
 
@@ -94,7 +94,7 @@ Windows 的 TorchScript/PNNX 原生路径接口对中文绝对路径不可靠。
 ## 验证入口
 
 - `tests/test_jobs.py`：协议、持久化/重开、同设备冲突、协作停止、强停所属 Windows 子进程树、原生异常及 stdout 隔离。
-- `tests/test_training_jobs.py`：参数拒绝、快照完整性和只读、NCNN 多头拒绝；显式设置 `YOLO_RUN_TRAINING_INTEGRATION=1` 与 `YOLO_TRAIN_PYTHON` 后运行实际 CPU train/stop/resume/evaluate/PT/ONNX/NCNN 链路。
+- `tests/test_training_jobs.py`：参数拒绝、快照完整性和只读、NCNN 多头拒绝；设置 `YOLO_MODEL_CACHE` 指向官方三系列 Nano PT 所在目录并设置 `YOLO_TRAIN_PYTHON`，验证三个真实模型的系列、全部错配及旧版 v8 检查点重新保存/加载。显式设置 `YOLO_RUN_TRAINING_INTEGRATION=1` 与 `YOLO_TRAIN_PYTHON` 后运行实际 CPU train/stop/resume/evaluate/PT/ONNX/NCNN 链路。
 - `tests/test_export_jobs_integration.py`：同样显式启用后验证 YOLO11/26 原生导出和实际输出布局；架构随机初始化仅验证转换/执行链路，不表示准确率。
 
 ## FP32 跨格式数值验收

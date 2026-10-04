@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import time
 from pathlib import Path
 from types import SimpleNamespace
@@ -76,6 +77,83 @@ def test_unknown_architecture_cannot_acquire_false_manifest_family():
     loaded = SimpleNamespace(model=SimpleNamespace(yaml={"yaml_file": "custom.yaml"}))
     with pytest.raises(ValueError, match="无法验证"):
         validate_model_family(loaded, "yolov8")
+
+
+def test_training_argument_and_external_filename_are_not_family_evidence():
+    loaded = SimpleNamespace(
+        model=SimpleNamespace(yaml={}, args={"model": "yolov8n.pt"}),
+        ckpt={"train_args": {"model": "yolov8n.yaml"}},
+    )
+    with pytest.raises(ValueError, match="无法验证"):
+        validate_model_family(loaded, "yolov8")
+
+
+@pytest.mark.skipif(not os.environ.get("YOLO_MODEL_CACHE"), reason="Explicit local official weights check")
+def test_real_official_model_families_and_legacy_checkpoint_roundtrip(tmp_path):
+    script = """
+import json
+import sys
+from copy import deepcopy
+from pathlib import Path
+from yolo_workbench.worker import configure_offline, prepare_ultralytics
+from yolo_workbench.training_worker import validate_model_family
+
+cache, output = map(Path, sys.argv[1:])
+configure_offline(output)
+prepare_ultralytics()
+import torch
+from ultralytics import YOLO
+
+families = ('yolov8', 'yolo11', 'yolo26')
+verified = []
+for family in families:
+    loaded = YOLO(cache / (family + 'n.pt'))
+    assert validate_model_family(loaded, family) == family
+    for wrong in set(families) - {family}:
+        try:
+            validate_model_family(loaded, wrong)
+        except ValueError as error:
+            assert f'实际架构为 {family}' in str(error)
+        else:
+            raise AssertionError((family, wrong))
+    if family == 'yolov8':
+        # Recreate the metadata changes made by fine-tuning: a new class count,
+        # no original YAML filename, and train_args.model now naming a PT file.
+        checkpoint = deepcopy(loaded.ckpt)
+        checkpoint['model'].yaml.pop('yaml_file', None)
+        checkpoint['model'].yaml['nc'] = 1
+        checkpoint['train_args']['model'] = str(output / 'renamed-yolo26.pt')
+        target = output / 'renamed-yolo26.pt'
+        torch.save(checkpoint, target)
+        reloaded = YOLO(target)
+        assert validate_model_family(reloaded, 'yolov8') == 'yolov8'
+        for wrong in ('yolo11', 'yolo26'):
+            try:
+                validate_model_family(reloaded, wrong)
+            except ValueError as error:
+                assert '实际架构为 yolov8' in str(error)
+            else:
+                raise AssertionError(wrong)
+        reloaded.model.yaml['backbone'][2][2] = 'C3k2'
+        try:
+            validate_model_family(reloaded, 'yolov8')
+        except ValueError as error:
+            assert '无法验证' in str(error)
+        else:
+            raise AssertionError('Unsupported structure accepted')
+    verified.append(family)
+print(json.dumps({'verified': verified, 'wrong_family_rejections': 8, 'legacy_roundtrip': True}))
+"""
+    completed = subprocess.run(
+        [os.environ["YOLO_TRAIN_PYTHON"], "-c", script, os.environ["YOLO_MODEL_CACHE"], str(tmp_path)],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        timeout=90,
+        check=False,
+    )
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    assert '"legacy_roundtrip": true' in completed.stdout
 
 
 def wait_job(manager, job, *, stop_first_epoch=False, timeout=240):

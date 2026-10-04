@@ -35,12 +35,61 @@ def validate_model_family(model, expected: str) -> str:
     yaml_file = architecture.get("yaml_file", "") if isinstance(architecture, dict) else ""
     name = str(yaml_file).replace("\\", "/").rsplit("/", 1)[-1].lower()
     match = re.fullmatch(r"(yolov8|yolo11|yolo26)[nsmlx]?\.ya?ml", name)
-    if not match:
+    # Official early v8 checkpoints predate yaml_file. Their serialized layer
+    # graph survives fine-tuning and resume, unlike train_args.model, which is
+    # replaced with a user-controlled PT path during training.
+    legacy_v8 = _is_legacy_yolov8(architecture)
+    if legacy_v8 and match and match.group(1) != "yolov8":
+        raise ValueError("模型内部 YAML 名称与 YOLOv8 层结构冲突，无法验证所选模型系列")
+    actual = "yolov8" if legacy_v8 else match.group(1) if match else None
+    if actual is None:
         raise ValueError("模型架构缺少可识别的 YOLOv8/YOLO11/YOLO26 YAML 元数据，无法验证所选模型系列")
-    actual = match.group(1)
     if actual != expected:
         raise ValueError(f"权重实际架构为 {actual}，当前训练配置为 {expected}；请选择匹配的模型系列后重试")
     return actual
+
+
+def _is_legacy_yolov8(architecture) -> bool:
+    """Recognize the standard v8 detection graph without relying on its name."""
+    if not isinstance(architecture, dict) or architecture.get("end2end", False):
+        return False
+    expected = (
+        (-1, 1, "Conv"),
+        (-1, 1, "Conv"),
+        (-1, 3, "C2f"),
+        (-1, 1, "Conv"),
+        (-1, 6, "C2f"),
+        (-1, 1, "Conv"),
+        (-1, 6, "C2f"),
+        (-1, 1, "Conv"),
+        (-1, 3, "C2f"),
+        (-1, 1, "SPPF"),
+        (-1, 1, "nn.Upsample"),
+        ((-1, 6), 1, "Concat"),
+        (-1, 3, "C2f"),
+        (-1, 1, "nn.Upsample"),
+        ((-1, 4), 1, "Concat"),
+        (-1, 3, "C2f"),
+        (-1, 1, "Conv"),
+        ((-1, 12), 1, "Concat"),
+        (-1, 3, "C2f"),
+        (-1, 1, "Conv"),
+        ((-1, 9), 1, "Concat"),
+        (-1, 3, "C2f"),
+        ((15, 18, 21), 1, "Detect"),
+    )
+    backbone, head = architecture.get("backbone"), architecture.get("head")
+    if not isinstance(backbone, (list, tuple)) or not isinstance(head, (list, tuple)):
+        return False
+    if len(backbone) != 10 or len(head) != 13:
+        return False
+    signature = []
+    for layer in (*backbone, *head):
+        if not isinstance(layer, (list, tuple)) or len(layer) != 4:
+            return False
+        source, repeats, module, _ = layer
+        signature.append((tuple(source) if isinstance(source, (list, tuple)) else source, repeats, module))
+    return tuple(signature) == expected
 
 
 def prepare_snapshot(snapshot: Path, run_dir: Path) -> tuple[dict, Path]:
