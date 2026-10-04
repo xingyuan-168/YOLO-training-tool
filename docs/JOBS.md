@@ -59,6 +59,8 @@ parameters = {
 
 TrainingConfig.effective 校验基础字段和专家白名单。快照必须包含 snapshot.json、data.yaml、非空 train/val、冻结类别和图像/标签哈希。每次训练/评估读取并验证快照，再为任务创建私有图像链接、独立标签及 data.yaml；Ultralytics cache 不写入原始快照。
 
+加载 PT/YAML 后，Worker 从模型内部的 `model.yaml.yaml_file` 验证实际架构系列；与配置不同或架构元数据无法识别时，在训练前拒绝执行。文件改名和界面选择不能把 YOLO11/26 权重标记为 YOLOv8，避免产生错误的训练 manifest 与恢复契约。
+
 每轮 `on_model_save` 在 Ultralytics strip_optimizer 前原子生成 `train/weights/resume.pt`。该检查点保存未平均的原始训练权重、FP32 EMA、完整精度优化器、scaler、scheduler、早停状态、Python/NumPy/Torch/CUDA RNG、DataLoader generator、梯度。best.pt/last.pt 仍遵循 Ultralytics 推理权重输出习惯。
 
 安全停止保留本轮完整 checkpoint，再完成最后验证和清理；强停仅保证此前已原子保存的轮次。`resume_checkpoint` 与 `finetune=True` 互斥。完整恢复必须选本工具 resume.pt、同一快照和类别、同一系列，并继续原来的总轮数计划；完成计划后增加训练或更换数据应使用 finetune。普通 best.pt、已 strip 的 last.pt 不冒充完整恢复。

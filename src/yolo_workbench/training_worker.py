@@ -8,6 +8,7 @@ import json
 import math
 import os
 import random
+import re
 import shutil
 import time
 from copy import deepcopy
@@ -26,6 +27,20 @@ def digest(path: Path) -> str:
         while chunk := stream.read(1024 * 1024):
             result.update(chunk)
     return result.hexdigest()
+
+
+def validate_model_family(model, expected: str) -> str:
+    """Verify architecture metadata after loading; filenames are not authority."""
+    architecture = getattr(getattr(model, "model", None), "yaml", {})
+    yaml_file = architecture.get("yaml_file", "") if isinstance(architecture, dict) else ""
+    name = str(yaml_file).replace("\\", "/").rsplit("/", 1)[-1].lower()
+    match = re.fullmatch(r"(yolov8|yolo11|yolo26)[nsmlx]?\.ya?ml", name)
+    if not match:
+        raise ValueError("模型架构缺少可识别的 YOLOv8/YOLO11/YOLO26 YAML 元数据，无法验证所选模型系列")
+    actual = match.group(1)
+    if actual != expected:
+        raise ValueError(f"权重实际架构为 {actual}，当前训练配置为 {expected}；请选择匹配的模型系列后重试")
+    return actual
 
 
 def prepare_snapshot(snapshot: Path, run_dir: Path) -> tuple[dict, Path]:
@@ -159,6 +174,7 @@ def train(request: dict, emit) -> dict:
                 self.args.exist_ok = False
 
     model = YOLO(model_source, task="detect")
+    validate_model_family(model, config.family)
     started = time.monotonic()
     counter = {"batches": 0, "last_emit": 0.0, "saved_epoch": -1, "restored": False, "epoch": 0}
     resume_target = run_dir / "train/weights/resume.pt"

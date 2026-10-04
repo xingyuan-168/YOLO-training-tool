@@ -4,6 +4,7 @@ import json
 import os
 import time
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from PIL import Image, ImageDraw
@@ -12,7 +13,7 @@ from yolo_workbench.dataset import DatasetService
 from yolo_workbench.export_worker import _ncnn_names
 from yolo_workbench.jobs import JobManager
 from yolo_workbench.training import resolve_model, validate_training_request
-from yolo_workbench.training_worker import digest, prepare_snapshot
+from yolo_workbench.training_worker import digest, prepare_snapshot, validate_model_family
 
 
 def fixture_project(tmp_path):
@@ -60,6 +61,21 @@ def test_ncnn_rejects_raw_multiheads_before_load(tmp_path):
     param.write_text("7767517\n4 4\nInput input 0 1 in0\nSplit head 1 3 in0 out0 out1 out2\n")
     with pytest.raises(ValueError, match="单解码输出"):
         _ncnn_names(param)
+
+
+@pytest.mark.parametrize("family", ["yolo11", "yolo26"])
+def test_model_architecture_cannot_be_claimed_as_yolov8(family):
+    # A renamed user PT file must not override the architecture stored inside it.
+    loaded = SimpleNamespace(model=SimpleNamespace(yaml={"yaml_file": f"cfg/models/{family}n.yaml"}))
+    with pytest.raises(ValueError, match=f"实际架构为 {family}"):
+        validate_model_family(loaded, "yolov8")
+    assert validate_model_family(loaded, family) == family
+
+
+def test_unknown_architecture_cannot_acquire_false_manifest_family():
+    loaded = SimpleNamespace(model=SimpleNamespace(yaml={"yaml_file": "custom.yaml"}))
+    with pytest.raises(ValueError, match="无法验证"):
+        validate_model_family(loaded, "yolov8")
 
 
 def wait_job(manager, job, *, stop_first_epoch=False, timeout=240):
