@@ -94,3 +94,22 @@ Windows 的 TorchScript/PNNX 原生路径接口对中文绝对路径不可靠。
 - `tests/test_jobs.py`：协议、持久化/重开、同设备冲突、协作停止、强停所属 Windows 子进程树、原生异常及 stdout 隔离。
 - `tests/test_training_jobs.py`：参数拒绝、快照完整性和只读、NCNN 多头拒绝；显式设置 `YOLO_RUN_TRAINING_INTEGRATION=1` 与 `YOLO_TRAIN_PYTHON` 后运行实际 CPU train/stop/resume/evaluate/PT/ONNX/NCNN 链路。
 - `tests/test_export_jobs_integration.py`：同样显式启用后验证 YOLO11/26 原生导出和实际输出布局；架构随机初始化仅验证转换/执行链路，不表示准确率。
+
+## FP32 跨格式数值验收
+
+`scripts/validate_export_parity.py` 使用已显式准备的真实预训练 Nano 权重，通过生产 JobManager 重新导出模型，再在独立运行环境比较。默认读取 Ultralytics 随包 `bus.jpg`、`zidane.jpg`，加一张确定性的合成渐变图。原始权重、导出文件、图片和相同输入 Tensor 的 SHA256 全部写入报告；禁止下载模型。
+
+同一比较共享 RGB、INTER_LINEAR letterbox、114 padding、NCHW FP32 / 255 和 640 输入。v8/11 共享 confidence=0.25、按类别 NMS IoU=0.45；YOLO26 共享端到端最终行解码，不另加 NMS。按类别以最大 IoU 做一对一匹配，要求框数/类别完全相同、每框 IoU ≥ 0.99、置信度差 ≤ 0.001。两边都是空检测标记 `vacuous_no_detections`，不算通过证据；每组至少需要一张真实图片的非空检测通过。
+
+2026-10-04 CPU 验收通过，完整哈希、版本与逐图结果见 `docs/reports/export-parity.json`：
+
+| 比较（640 / FP32） | 非空图片 | 最低匹配 IoU | 最大置信度差 |
+|---|---:|---:|---:|
+| v8n PT → CQ ONNX | 2 | 0.999999227 | 0.000000924 |
+| 11n PT → CQ ONNX | 2 | 0.999999125 | 0.000000596 |
+| 26n PT → 通用 ONNX | 2 | 0.999998789 | 0.000000656 |
+| v8n PT → AScript NCNN | 2 | 0.999998610 | 0.000000715 |
+
+每组照片分别包含 5 与 3 个匹配检测；四个合成图比较均为空，单独记录且排除通过计数。结果证明这些模型的 CPU 导出数值一致性，不代表每个用户模型、业务准确率或 Android 真机验收。
+
+在已准备的项目运行 `python scripts/validate_export_parity.py`；可传 `--train-python / --models / --images / --artifacts / --report`，便携包自动识别 runtime/train/python.exe。`--self-test` 在训练环境执行七个验收规则检查，覆盖类别不匹配、框差异、置信度差异、空结果和顺序无关性。
