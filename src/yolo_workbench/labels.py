@@ -15,9 +15,13 @@ class Box:
     height: float
 
     def validate(self, class_count: int) -> None:
+        if type(class_count) is not int or class_count < 1:
+            raise ValueError("类别数量必须为正整数")
         if type(self.class_id) is not int or not 0 <= self.class_id < class_count:
             raise ValueError("非法类别编号")
-        if not all(math.isfinite(v) for v in (self.cx, self.cy, self.width, self.height)):
+        if not all(
+            type(v) in (int, float) and math.isfinite(v) for v in (self.cx, self.cy, self.width, self.height)
+        ):
             raise ValueError("坐标必须为有限数值")
         if self.width <= 0 or self.height <= 0:
             raise ValueError("边框面积必须大于零")
@@ -45,6 +49,8 @@ class Box:
 
 
 def parse_labels(text: str, class_count: int) -> list[Box]:
+    if not isinstance(text, str) or type(class_count) is not int or class_count < 1:
+        raise ValueError("标签文本或类别数量非法")
     boxes = []
     for line_number, line in enumerate(text.splitlines(), 1):
         if not line.strip():
@@ -68,7 +74,11 @@ def format_labels(boxes: list[Box], class_count: int) -> str:
 
 
 def validate_classes(names: list[str]) -> list[str]:
-    if not names or any(not isinstance(n, str) or not n.strip() or "\n" in n or "\r" in n for n in names):
+    if (
+        not isinstance(names, list)
+        or not names
+        or any(not isinstance(n, str) or not n.strip() or any(ord(c) < 32 for c in n) for n in names)
+    ):
         raise ValueError("至少需要一个有效类别名称，名称不能包含换行")
     normalized = [n.strip() for n in names]
     if len(set(normalized)) != len(normalized):

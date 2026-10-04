@@ -7,7 +7,7 @@ from PIL import Image
 
 from yolo_workbench.dataset import DatasetService, file_hash
 from yolo_workbench.labels import Box, format_labels, parse_labels
-from yolo_workbench.storage import FileTransaction, atomic_write
+from yolo_workbench.storage import FileTransaction, OperationCancelled, atomic_write, remove_owned_tree
 
 
 @pytest.fixture
@@ -214,3 +214,244 @@ def test_corrupt_image_and_orphan_label_reported(project, tmp_path):
     (project.root / "labels" / "orphan.txt").write_text("0 .5 .5 .2 .2")
     issues = project.validate()
     assert sum(i["severity"] == "error" for i in issues) == 2
+
+
+def test_pagination_count_and_review_navigation_do_not_decode_images(project, tmp_path, monkeypatch):
+    ids = []
+    for i in range(5):
+        asset, _ = project.import_image(sample(tmp_path, f"item-{i}.png", (i * 40, 10, 30)))
+        ids.append(asset)
+
+    def forbidden(*_args, **_kwargs):
+        raise AssertionError("index navigation must not decode image pixels")
+
+    monkeypatch.setattr(Image, "open", forbidden)
+    assert project.count_assets(status="pending", search="item-") == 5
+    assert [r["id"] for r in project.iter_assets(page_size=2)] == ids
+    assert project.list_assets(limit=2, offset=2)[0]["id"] == ids[2]
+    assert project.next_unreviewed(ids[0])["id"] == ids[1]
+    assert project.next_unreviewed(ids[-1])["id"] == ids[0]
+    assert project.next_unreviewed(ids[-1], wrap=False) is None
+    project.update_status(ids[1], "empty")
+    assert project.next_unreviewed(ids[0])["id"] == ids[2]
+    assert project.get_asset(ids[1])["status"] == "empty"
+    assert project.get_path(ids[0]).is_relative_to(project.root / "assets")
+
+
+def test_class_preview_is_read_only_and_restore_refuses_new_assets(project, tmp_path):
+    ids = audited_assets(project, tmp_path)
+    before = {p: file_hash(p) for name in ("labels", "records") for p in (project.root / name).iterdir()}
+    preview = project.preview_class_migration(["宝剑"], {0: None, 1: 0})
+    assert preview["dropped"] == 6 and preview["affected_images"] == 6
+    assert preview["requires_confirmation"]
+    assert all(file_hash(p) == digest for p, digest in before.items())
+    result = project.migrate_classes(["宝剑"], {0: None, 1: 0}, allow_drop=True)
+    assert project.count_assets(status="pending") == 6
+    assert not project.load_boxes(ids[0])
+    project.import_image(sample(tmp_path, "new.png", "blue"), confirmed_empty=True)
+    with pytest.raises(ValueError, match="新修改"):
+        project.restore_class_migration(result["migration_id"])
+
+
+def test_explicit_test_split_snapshot_and_session_leakage(project, tmp_path):
+    ids = audited_assets(project, tmp_path, 8)
+    split = project.split(train_ratio=0.5, test_ratio=0.25)
+    assert all(split[key] for key in ("train", "val", "test"))
+    assert not project.validate_split(split)
+    assert set(ids) == {i for key in ("train", "val", "test") for i in split[key]}
+    snapshot = project.snapshot(split, {"epochs": 1})
+    import yaml
+
+    config = yaml.safe_load((snapshot / "data.yaml").read_text(encoding="utf-8"))
+    assert config["test"] == "images/test"
+    assert len(list((snapshot / "images/test").iterdir())) == len(split["test"])
+    leaked = {"train": ids[::2], "val": ids[1::2], "test": []}
+    assert any(i["code"] == "session_leakage" for i in project.validate_split(leaked))
+    with pytest.raises(ValueError, match="跨越"):
+        project.snapshot(leaked, {})
+
+
+def test_validation_decodes_pixels_even_when_header_and_updated_hash_match(project, tmp_path):
+    path = tmp_path / "truncated.jpg"
+    Image.new("RGB", (100, 80), "red").save(path)
+    asset, _ = project.import_image(path, confirmed_empty=True)
+    managed = project.get_path(asset)
+    managed.write_bytes(managed.read_bytes()[:-12])
+    with Image.open(managed) as image:
+        image.verify()
+    record = project.get_asset(asset)
+    record["hash"] = file_hash(managed)
+    replacement = managed.with_name(record["hash"] + managed.suffix)
+    managed.rename(replacement)
+    record["file"] = replacement.relative_to(project.root).as_posix()
+    atomic_write(project.root / "records" / f"{asset}.json", json.dumps(record))
+    project.rebuild_index()
+    issues = project.validate()
+    assert any(i["severity"] == "error" and i["code"] == "invalid_asset" for i in issues)
+
+
+def test_distributions_and_abnormal_labels(project, tmp_path):
+    image = tmp_path / "tiny.png"
+    Image.new("RGB", (16, 200), "blue").save(image)
+    boxes = "1 .5 .5 .01 .01\n1 .5 .5 .01 .01\n"
+    project.import_image(image, labels=boxes)
+    stats = project.statistics()
+    assert stats["total"] == 1 and stats["boxes"] == 2
+    assert stats["classes"][1]["boxes"] == 2 and stats["classes"][1]["images"] == 1
+    assert {i["code"] for i in project.validate()} >= {"duplicate_box", "abnormal_size", "tiny_box"}
+
+
+def test_import_transaction_failure_removes_only_new_managed_bytes(project, tmp_path, monkeypatch):
+    existing, _ = project.import_image(sample(tmp_path), confirmed_empty=True)
+    kept = project.get_path(existing)
+
+    def fail(_changes):
+        raise OSError("full disk")
+
+    monkeypatch.setattr(project.transaction, "write", fail)
+    with pytest.raises(OSError, match="full disk"):
+        project.import_image(sample(tmp_path, "new.png", "blue"))
+    assert project.count_assets() == 1 and list((project.root / "assets").iterdir()) == [kept]
+
+
+def test_index_rebuild_cancellation_rolls_back_previous_index(project, tmp_path):
+    audited_assets(project, tmp_path)
+    cancelled = False
+
+    def progress(_event):
+        nonlocal cancelled
+        cancelled = True
+
+    with pytest.raises(OperationCancelled):
+        project.rebuild_index(progress=progress, cancel=lambda: cancelled)
+    assert project.count_assets() == 6
+
+
+def test_snapshot_cancellation_cleans_build_only(project, tmp_path):
+    audited_assets(project, tmp_path)
+    split = project.split()
+    existing = project.snapshot(split, {})
+    cancelled = False
+
+    def progress(_event):
+        nonlocal cancelled
+        cancelled = True
+
+    with pytest.raises(OperationCancelled):
+        project.snapshot(split, {}, progress=progress, cancel=lambda: cancelled)
+    assert list((project.root / "snapshots").iterdir()) == [existing]
+
+
+def test_project_move_and_corrupt_index_recovery_do_not_need_original_source(tmp_path):
+    source = sample(tmp_path)
+    old_root = tmp_path / "old"
+    with DatasetService.create(old_root, "可移动", ["目标"]) as service:
+        asset, _ = service.import_image(source, confirmed_empty=True)
+    source.unlink()
+    destination = tmp_path / "moved"
+    old_root.rename(destination)
+    (destination / "index.sqlite3").write_bytes(b"corrupt derived index")
+    with DatasetService(destination) as service:
+        assert service.count_assets() == 1 and service.get_path(asset).is_file()
+        assert not service.validate()
+
+
+def test_duplicate_authoritative_records_do_not_silently_replace_index(project, tmp_path):
+    asset, _ = project.import_image(sample(tmp_path), confirmed_empty=True)
+    record = project.get_asset(asset)
+    record["id"] = "differentid"
+    atomic_write(project.root / "records/differentid.json", json.dumps(record))
+    with pytest.raises(ValueError, match="重复内容哈希"):
+        project.rebuild_index()
+    assert project.count_assets() == 1
+
+
+def test_owned_cleanup_rejects_outside_target_and_journal_validates_all_paths(tmp_path):
+    parent = tmp_path / "owned"
+    parent.mkdir()
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "keep").write_text("safe")
+    with pytest.raises(RuntimeError):
+        remove_owned_tree(parent, outside, outside.name)
+    atomic_write(parent / "file", "before")
+    atomic_write(
+        parent / ".transaction.json",
+        json.dumps({"committed": True, "after": {"file": "changed", "../outside/keep": "bad"}, "before": {}}),
+    )
+    with pytest.raises(ValueError):
+        FileTransaction(parent).recover()
+    assert (parent / "file").read_text() == "before"
+    assert (outside / "keep").read_text() == "safe"
+
+
+@pytest.mark.parametrize("point, expected", [("before_metadata", 0), ("after_metadata", 1)])
+def test_image_import_process_interruption_recovers_complete_units(tmp_path, point, expected):
+    import subprocess
+    import sys
+
+    source = sample(tmp_path)
+    root = tmp_path / "project"
+    with DatasetService.create(root, "恢复", ["目标"]):
+        pass
+    code = """
+import os, sys
+from pathlib import Path
+from yolo_workbench.dataset import DatasetService
+with DatasetService(Path(sys.argv[1])) as service:
+    original = service.transaction.write
+    def crash(changes):
+        if sys.argv[3] == 'before_metadata': os._exit(23)
+        original(changes)
+        os._exit(23)
+    service.transaction.write = crash
+    service.import_image(Path(sys.argv[2]), confirmed_empty=True)
+"""
+    result = subprocess.run([sys.executable, "-c", code, str(root), str(source), point], timeout=15)
+    assert result.returncode == 23
+    assert (root / ".asset-import.json").exists()
+    with DatasetService(root) as service:
+        assert service.count_assets() == expected
+        assert len(list((root / "assets").iterdir())) == expected
+        assert not service.validate()
+    assert not (root / ".asset-import.json").exists()
+
+
+def test_open_removes_only_recognized_interrupted_owned_builds(tmp_path):
+    root = tmp_path / "project"
+    with DatasetService.create(root, "恢复", ["目标"]):
+        pass
+    incomplete = root / "snapshots" / ("a" * 32 + ".building")
+    incomplete.mkdir()
+    (incomplete / "partial").write_text("partial")
+    keep = root / "snapshots" / "user-notes.building"
+    keep.mkdir()
+    temporary = root / "assets" / ("." + "b" * 32 + ".importing")
+    temporary.write_text("partial")
+    with DatasetService(root):
+        assert not incomplete.exists() and not temporary.exists()
+        assert keep.exists()
+
+
+def test_confirmed_negative_missing_label_file_is_detected(project, tmp_path):
+    asset, _ = project.import_image(sample(tmp_path), confirmed_empty=True)
+    (project.root / "labels" / f"{asset}.txt").unlink()
+    assert any(i["severity"] == "error" and "缺失标签" in i["message"] for i in project.validate())
+
+
+def test_image_decompression_bomb_is_rejected_without_publishing_asset(project, tmp_path, monkeypatch):
+    source = sample(tmp_path)
+    monkeypatch.setattr(Image, "MAX_IMAGE_PIXELS", 5000)
+    with pytest.raises(ValueError, match="像素数量"):
+        project.import_image(source)
+    assert not list((project.root / "assets").iterdir())
+
+
+def test_damaged_index_schema_is_rebuilt_from_records(tmp_path):
+    source = sample(tmp_path)
+    root = tmp_path / "project"
+    with DatasetService.create(root, "索引恢复", ["目标"]) as service:
+        service.import_image(source, confirmed_empty=True)
+        service.db.executescript("DROP TABLE assets; CREATE TABLE assets (unexpected TEXT);")
+    with DatasetService(root) as service:
+        assert service.count_assets() == 1 and not service.validate()
