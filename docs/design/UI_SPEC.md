@@ -59,3 +59,12 @@ CQ_AI IoU 显示 0.45 且只读；有 NMS 的 NCNN/PT 可调；YOLO26 通用端�
 原型的训练/评估/识别/导出和性能值是演示，顶部固定标识。原型只允许“导出日志”生成演示日志文件。生产界面不显示内部协议和开发术语，除非用户打开诊断或专家配置。
 
 生产端验收：常用 DPI 下无关键操作裁切、键盘可达、长路径可读；任务错误有重试/恢复入口；训练/采集/推理均不中断主界面。原型评审通过不等于生产功能或硬件验收通过。
+
+approval:
+  type: frontend
+  scope: "YOLO-V1"
+  status: approved
+  approved_by: "user"
+  approved_at: 2026-10-04
+  spec_sha256: 7a57c721048538a408ab7c33390ae0f0d30c7f596914727856212fde70934f22
+  prototype_sha256: 6c9137b89691652ac97bf429fc21080e6c95a911dc5edd61663c3f15f2b21750
