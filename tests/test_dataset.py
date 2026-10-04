@@ -455,3 +455,86 @@ def test_damaged_index_schema_is_rebuilt_from_records(tmp_path):
         service.db.executescript("DROP TABLE assets; CREATE TABLE assets (unexpected TEXT);")
     with DatasetService(root) as service:
         assert service.count_assets() == 1 and not service.validate()
+
+
+def test_prepared_reopen_uses_valid_index_without_scanning_records(tmp_path, monkeypatch):
+    root = tmp_path / "project"
+    with DatasetService.create(root, "后台已准备", ["目标"]) as service:
+        asset, _ = service.import_image(sample(tmp_path), confirmed_empty=True)
+
+    def forbid_record_scan(*_args, **_kwargs):
+        raise AssertionError("prepared index must not scan JSON records again")
+
+    monkeypatch.setattr(DatasetService, "rebuild_index", forbid_record_scan)
+    monkeypatch.setattr(DatasetService, "_record", forbid_record_scan)
+    with DatasetService(root, index_prepared=True) as service:
+        assert service.count_assets(status="empty") == 1
+        assert service.list_assets()[0]["id"] == asset
+        assert not service.recovered
+
+
+def test_default_reopen_still_rebuilds_existing_index(tmp_path):
+    root = tmp_path / "project"
+    with DatasetService.create(root, "默认完整检查", ["目标"]) as service:
+        service.import_image(sample(tmp_path), confirmed_empty=True)
+        with service.db:
+            service.db.execute("DELETE FROM assets")
+    with DatasetService(root) as service:
+        assert service.count_assets() == 1
+
+
+@pytest.mark.parametrize(
+    "state",
+    [
+        "missing",
+        "version",
+        "missing_table",
+        "wrong_schema",
+        "corrupt",
+        "transaction",
+        "asset_import",
+        "building",
+    ],
+)
+def test_prepared_reopen_forces_rebuild_after_index_change_or_recovery(tmp_path, state):
+    import sqlite3
+
+    root = tmp_path / "project"
+    with DatasetService.create(root, "必须重新准备", ["目标"]) as service:
+        asset, _ = service.import_image(sample(tmp_path), confirmed_empty=True)
+        record = service.get_asset(asset)
+    index = root / "index.sqlite3"
+    if state == "missing":
+        index.unlink()
+    elif state == "corrupt":
+        index.write_bytes(b"damaged SQLite")
+    else:
+        with sqlite3.connect(index) as db:
+            db.execute("DELETE FROM assets")
+            if state == "version":
+                db.execute("PRAGMA user_version=0")
+            elif state in ("missing_table", "wrong_schema"):
+                db.execute("DROP TABLE assets")
+                if state == "wrong_schema":
+                    db.execute("CREATE TABLE assets (unexpected TEXT)")
+        db.close()
+        if state == "transaction":
+            relative = f"records/{asset}.json"
+            before = (root / relative).read_text(encoding="utf-8")
+            record.update(status="pending", revision=2)
+            atomic_write(
+                root / ".transaction.json",
+                json.dumps(
+                    {"committed": True, "before": {relative: before}, "after": {relative: json.dumps(record)}}
+                ),
+            )
+        elif state == "asset_import":
+            atomic_write(
+                root / ".asset-import.json", json.dumps({key: record[key] for key in ("id", "file", "hash")})
+            )
+        elif state == "building":
+            (root / "snapshots" / ("a" * 32 + ".building")).mkdir()
+    with DatasetService(root, index_prepared=True) as service:
+        assert service.count_assets() == 1
+        assert service.count_assets(status="pending" if state == "transaction" else "empty") == 1
+        assert service.recovered == (state in {"transaction", "asset_import", "building"})

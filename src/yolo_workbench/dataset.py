@@ -58,7 +58,9 @@ def image_dimensions(path: Path) -> tuple[int, int]:
 
 
 class DatasetService:
-    def __init__(self, root: Path):
+    def __init__(self, root: Path, *, index_prepared: bool = False):
+        if type(index_prepared) is not bool:
+            raise ValueError("索引准备标记必须为布尔值")
         self.root = root.resolve()
         if not (self.root / "project.json").is_file():
             raise ValueError("不是工作台项目目录")
@@ -70,9 +72,13 @@ class DatasetService:
             if self.project["schema_version"] != 1:
                 raise ValueError("不支持的项目版本")
             validate_classes(self.project["classes"])
+            pending_import = (self.root / ".asset-import.json").exists()
             self._recover_asset_import()
-            self._cleanup_interrupted_builds()
+            recovered_build = self._cleanup_interrupted_builds()
+            self.recovered = self.recovered or pending_import or recovered_build
+            index_existed = (self.root / "index.sqlite3").is_file()
             self.db = sqlite3.connect(self.root / "index.sqlite3")
+            columns = []
             try:
                 version = self.db.execute("PRAGMA user_version").fetchone()[0]
                 healthy = self.db.execute("PRAGMA quick_check").fetchone()[0] == "ok"
@@ -105,7 +111,17 @@ class DatasetService:
             self.db.execute("CREATE INDEX IF NOT EXISTS asset_status ON assets(deleted, status, name, id)")
             self.db.execute("PRAGMA user_version=1")
             self.db.row_factory = sqlite3.Row
-            self.rebuild_index()
+            # Only a caller that just prepared this index may skip the JSON scan.
+            # Never trust that hint after recovery or repairing a missing/changed DB.
+            if (
+                not index_prepared
+                or not index_existed
+                or self.recovered
+                or not healthy
+                or version != 1
+                or not columns
+            ):
+                self.rebuild_index()
         except BaseException:
             if hasattr(self, "db"):
                 self.db.close()
@@ -241,15 +257,19 @@ class DatasetService:
                 target.unlink()
         journal.unlink()
 
-    def _cleanup_interrupted_builds(self) -> None:
+    def _cleanup_interrupted_builds(self) -> bool:
+        recovered = False
         for path in (self.root / "assets").glob(".*.importing"):
             token = path.name.removeprefix(".").removesuffix(".importing")
             if len(token) == 32 and all(c in "0123456789abcdef" for c in token) and not path.is_symlink():
                 child_path(self.root, path.relative_to(self.root).as_posix()).unlink()
+                recovered = True
         for path in (self.root / "snapshots").glob("*.building"):
             token = path.name.removesuffix(".building")
             if len(token) == 32 and all(c in "0123456789abcdef" for c in token):
                 remove_owned_tree(self.root / "snapshots", path, path.name)
+                recovered = True
+        return recovered
 
     def rebuild_index(self, *, progress=None, cancel=None) -> int:
         paths = sorted((self.root / "records").glob("*.json"))
