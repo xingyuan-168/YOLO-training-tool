@@ -18,4 +18,3 @@
 协议、项目、模型清单 schema 为 v1，SQLite user_version=1；遇到更高版本拒绝写入。stdout 专用 JSONL：protocol_version、job_id、sequence、timestamp、type、data。序列化失败不消耗序号，后续 error 仍可解析。第三方 Python/原生日志进入任务 stderr.log。
 
 模型类别由该模型的清单、权重或 ONNX 元数据确定。当前项目类别不能覆盖历史模型含义。CQ 固定 IoU=0.45；其余控件按 Worker capabilities 决定，YOLO26 NCNN 与 PT/ONNX 的 NMS 能力不同。
-

@@ -36,4 +36,3 @@ uv run --locked python scripts/smoke_compat.py
 GUI 测试需要 GUI 环境中安装锁定的开发测试依赖。真实训练/恢复/导出测试由 `YOLO_RUN_TRAINING_INTEGRATION=1` 和 `YOLO_TRAIN_PYTHON` 显式启用；数值一致性工具见 `scripts/validate_export_parity.py`。构建前在 GUI 环境准备 build 依赖组，再执行 `scripts/build_portable.py`；重建 GUI 使用 `--gui-only`，不会覆盖用户项目。
 
 输入、权重、运行环境、生成数据和打包产物不进入 Git。接口见 [API_SPEC](docs/API_SPEC.md)，结构见 [ARCHITECTURE](docs/ARCHITECTURE.md)，复用及许可证见 [OPEN_SOURCE_RESEARCH](docs/OPEN_SOURCE_RESEARCH.md)。经用户批准的 HTML 只作设计依据，生产程序使用 PySide6。
-

@@ -34,4 +34,3 @@ CQ 默认 AUTO/单会话/FP32，展示真实设备；保持最近邻 letterbox�
 目录包包含 GUI 的 _internal、runtime/train、runtime/inference、app/yolo_workbench、models、fonts、docs、source 和许可证。两个 Worker 环境包含完整 Python 基础解释器、标准库、各自依赖；移除指向开发目录的 editable .pth，不依赖开发机 venv。
 
 启动 Worker 时清理 PYTHONHOME/user-site，并临时恢复标准 Windows DLL 搜索路径，避免继承 PyInstaller GUI 的 DLL 目录。包带 DejaVu 与 OFL Noto 字体，离线绘图不下载字体。依赖只由显式准备命令安装。CPU 锁文件固定运行组合；CUDA、TensorRT、Android 使用端分别验收，基础包不带整套 NVIDIA 运行库。
-

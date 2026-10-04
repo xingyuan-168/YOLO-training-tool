@@ -113,6 +113,17 @@ def prepare_ultralytics():
 
     ultralytics.data.utils.check_font = local_font
     ultralytics.utils.plotting.check_font = local_font
+    # Pillow's font hook does not configure Matplotlib's class-distribution and
+    # confusion-matrix labels. Register the same bundled CJK font locally.
+    cjk_font = Path(os.environ.get("YOLO_WORKBENCH_FONT_CJK", ""))
+    if cjk_font.is_file():
+        import matplotlib
+        from matplotlib import font_manager
+
+        font_manager.fontManager.addfont(str(cjk_font))
+        family = font_manager.FontProperties(fname=str(cjk_font)).get_name()
+        matplotlib.rcParams["font.family"] = [family]
+        matplotlib.rcParams["font.sans-serif"] = [family, "DejaVu Sans"]
     return ultralytics
 
 

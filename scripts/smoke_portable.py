@@ -120,6 +120,10 @@ print(json.dumps({'snapshot':str(snap),'image':str(image),'prefix':sys.prefix,'s
             result = json.loads(report_path.read_text(encoding="utf-8"))
             worker = json.loads((Path(result["run_dir"]) / "job.json").read_text(encoding="utf-8"))
             result["offline_guard_active"] = (guard_path / f"{worker['pid']}.guard").is_file()
+            diagnostics = (Path(result["run_dir"]) / "stderr.log").read_text(
+                encoding="utf-8", errors="replace"
+            )
+            result["missing_glyph_warning"] = "Glyph " in diagnostics and "missing from font" in diagnostics
             results["steps"].append(
                 {"kind": kind, "runtime": runtime, "elapsed_seconds": time.monotonic() - start, **result}
             )
@@ -127,6 +131,7 @@ print(json.dumps({'snapshot':str(snap),'image':str(image),'prefix':sys.prefix,'s
                 result["state"] != "succeeded"
                 or result["gui_imported_heavy"]
                 or not result["offline_guard_active"]
+                or result["missing_glyph_warning"]
             ):
                 raise RuntimeError(json.dumps(result, ensure_ascii=False))
             return result["result"]
