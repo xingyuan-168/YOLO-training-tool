@@ -34,3 +34,15 @@ def test_mismatched_worker_messages_rejected(field, value):
     event[field] = value
     with pytest.raises(ValueError):
         EventReader("job").parse(json.dumps(event))
+
+
+def test_failed_serialization_does_not_break_error_event_sequence():
+    stream = io.StringIO()
+    writer = EventWriter("job", stream)
+    writer.emit("state", {"state": "running"})
+    with pytest.raises(ValueError):
+        writer.emit("metrics", {"loss": float("nan")})
+    writer.emit("error", {"message": "训练返回非有限指标"})
+    reader = EventReader("job")
+    events = [reader.parse(line) for line in stream.getvalue().splitlines()]
+    assert [event["sequence"] for event in events] == [1, 2]

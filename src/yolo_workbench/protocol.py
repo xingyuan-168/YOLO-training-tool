@@ -17,17 +17,18 @@ class EventWriter:
 
     def emit(self, event_type: str, data: dict) -> dict:
         with self.lock:
-            self.sequence += 1
             event = {
                 "protocol_version": PROTOCOL_VERSION,
                 "job_id": self.job_id,
-                "sequence": self.sequence,
+                "sequence": self.sequence + 1,
                 "timestamp": datetime.now(UTC).isoformat(),
                 "type": event_type,
                 "data": data,
             }
-            self.stream.write(json.dumps(event, ensure_ascii=False, allow_nan=False) + "\n")
+            encoded = json.dumps(event, ensure_ascii=False, allow_nan=False) + "\n"
+            self.stream.write(encoded)
             self.stream.flush()
+            self.sequence = event["sequence"]
             return event
 
 

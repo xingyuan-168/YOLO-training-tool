@@ -1,31 +1,21 @@
 # API Spec
 
-## 接口
+生产接口均由本仓库实现；重型训练、转换和推理库仅在 Worker 中加载。
 
-当前已实现（不依赖 Qt）：
+| 模块 | 接口与责任 | 详细契约 |
+|---|---|---|
+| dataset / importers | DatasetService、受管理导入、标签、类别迁移、三集合划分、校验、快照、恢复 | [DATA_WORKFLOWS.md](DATA_WORKFLOWS.md) |
+| jobs / worker | JobManager.start/poll_events/stop/shutdown、持久事件、进程归属、资源冲突 | [JOBS.md](JOBS.md) |
+| training / training_worker | TrainingConfig、架构与参数校验、训练、完整恢复、标准评估 | [JOBS.md](JOBS.md) |
+| export_worker / models | 通用 PT/ONNX/NCNN、CQ、AScript 包及结构/执行检查 | [JOBS.md](JOBS.md) |
+| inference / worker_inference | CQ、NCNN、PT、ONNX，原图 xyxy 结果、基准和来源追踪 | [INFERENCE_CAPTURE.md](INFERENCE_CAPTURE.md) |
+| capture / frames | WGC/DXGI、窗口状态、容量1最新帧队列、双槽共享内存 | [INFERENCE_CAPTURE.md](INFERENCE_CAPTURE.md) |
+| desktop | PySide6 四页面、画布撤销栈、懒加载缩略图、异步数据任务、实时指标 | [USER_GUIDE.md](USER_GUIDE.md) |
+| runtime | 便携路径、独立环境、PyInstaller 子进程 DLL 搜索路径隔离 | [ARCHITECTURE.md](ARCHITECTURE.md) |
 
-- `DatasetService.create/open`：取得独占写锁，恢复中断的文件事务，重建派生索引。
-- `import_image`：解码检查、内容去重、复制原始资产，显式传入标签或负样本确认。
-- `list_assets(status, search, limit, offset)`：分页索引查询，不解码图片。
-- `load_boxes/save_boxes`：标准 YOLO TXT，空标签默认未审核；标签与记录事务提交。
-- `recycle/restore`：逻辑回收，原始资产仍可供历史快照引用。
-- `migrate_classes/restore_class_migration`：完整编号映射、删除确认、事务记录；拒绝覆盖迁移后的新修改。
-- `split`：固定 seed，按会话或图片划分 train/val，未审核必须明确排除。
-- `snapshot`：冻结图片、标签、类别、划分和参数；原始图片硬链接失败则复制。
-- `validate`：损坏/变更图片、非法标签、审核状态、重复框与孤立标签。
-- `TrainingConfig.effective`：校验设备、轮数、输入尺寸及专家白名单；禁止覆盖应用管理字段。
-- `ModelManifest / inspect_onnx / validate_contract`：输入输出结构、类别、精度、系列、opset 契约。
-- `CqBackend`：配套 Wheel 显式 DLL、单会话加载/识别/状态/释放。仅在推理环境的独立进程中使用。
-- `EventWriter / EventReader`：协议 v1、任务 ID、递增序号、UTC 时间、类型和数据。
+数据、契约、参数错误使用 ValueError；项目锁冲突使用 RuntimeError；存储异常保留 OSError；取消使用 OperationCancelled。GUI 显示中文错误并记录完整日志。子进程原生崩溃产生 failed/interrupted 记录，不在 GUI 里重试加载原生库。
 
-待后续阶段实现：JobManager、生产 TrainerBackend、NCNN 预测适配器、CaptureBackend、共享帧缓冲、ZIP/完整数据集导入、显式测试集、导出管线、生产 GUI。M0 的脚本探针不是这些生产服务的替代品。
+协议、项目、模型清单 schema 为 v1，SQLite user_version=1；遇到更高版本拒绝写入。stdout 专用 JSONL：protocol_version、job_id、sequence、timestamp、type、data。序列化失败不消耗序号，后续 error 仍可解析。第三方 Python/原生日志进入任务 stderr.log。
 
-## 错误
+模型类别由该模型的清单、权重或 ONNX 元数据确定。当前项目类别不能覆盖历史模型含义。CQ 固定 IoU=0.45；其余控件按 Worker capabilities 决定，YOLO26 NCNN 与 PT/ONNX 的 NMS 能力不同。
 
-数据/契约/参数错误抛出 ValueError，项目锁冲突抛出 RuntimeError，存储异常保留 OSError。UI 层在后续实现中转换为中文错误与恢复操作。原生进程异常由 supervisor 识别，不能在 GUI 进程试加载。
-
-JSONL stdout 只传事件；第三方日志进入 stderr。当前只实现编解码，生产 Worker 和进程状态机尚未交付。
-
-## 兼容
-
-协议 schema v1、项目 schema v1、索引 user_version=1。遇到更高版本拒绝写入。CQ_AI=0.14.6，IoU=0.45；AScript v8 需单输出 [4+C,8400]；YOLO26 走通用模型路径。

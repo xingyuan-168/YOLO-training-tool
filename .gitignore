@@ -29,3 +29,9 @@ target/
 dist/
 build/
 *.log
+models/*.pt
+models/.setup/
+models/cache-manifest.json
+fonts/*.otf
+fonts/*.ttf
+projects/

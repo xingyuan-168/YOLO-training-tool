@@ -11,12 +11,13 @@ dependencies = ["pillow==11.3.0", "pyyaml==6.0.2"]
 
 [project.optional-dependencies]
 gui = ["pyside6==6.10.2", "pyqtgraph==0.13.7", "psutil==7.0.0"]
-train = ["ultralytics==8.4.7", "torch==2.9.1", "torchvision==0.24.1", "onnx==1.19.1", "onnxruntime==1.23.2", "onnxslim>=0.1.71,<0.2"]
-inference = ["numpy==2.2.6", "onnx==1.19.1", "ncnn>=1.0.20250916"]
-capture = ["windows-capture>=1.4.2", "numpy==2.2.6"]
+train = ["ultralytics==8.4.7", "torch==2.9.1", "torchvision==0.24.1", "onnx==1.19.1", "onnxruntime==1.23.2", "onnxslim>=0.1.71,<0.2", "ncnn==1.0.20260526", "pnnx", "windows-capture==2.0.1"]
+inference = ["numpy==2.2.6", "onnx==1.19.1", "ncnn==1.0.20260526", "windows-capture==2.0.1", "opencv-python==5.0.0.93", "onnxruntime==1.23.2", "psutil==7.0.0"]
+capture = ["windows-capture==2.0.1", "numpy==2.2.6"]
 
 [dependency-groups]
 dev = ["pytest==8.4.2", "ruff==0.14.14"]
+build = ["pyinstaller==6.22.3"]
 
 [tool.uv]
 environments = ["sys_platform == 'win32' and platform_machine == 'AMD64'"]

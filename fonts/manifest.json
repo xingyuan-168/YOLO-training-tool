@@ -1,0 +1,13 @@
+{
+  "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosanssc/",
+  "fonts": [
+    {
+      "file": "DejaVuSans.ttf",
+      "sha256": "3fdf69cabf06049ea70a00b5919340e2ce1e6d02b0cc3c4b44fb6801bd1e0d22"
+    },
+    {
+      "file": "NotoSansSC.ttf",
+      "sha256": "a3041811a78c361b1de50f953c805e0244951c21c5bd412f7232ef0d899af0da"
+    }
+  ]
+}

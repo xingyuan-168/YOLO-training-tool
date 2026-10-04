@@ -33,7 +33,7 @@ def cq_probe():
         with engine.yolo_model(320, AI_DEVICE_CPU, 0, 1) as direct:
             direct.load_model(model, config_path)
             expected = direct.infer(image_from_numpy(image), 0.0)
-    if adapted["detections"] != expected:
+    if adapted["raw_detections"] != expected:
         raise AssertionError("Adapter and direct engine disagree")
     return {
         "version": version("cq-ai-engine"),

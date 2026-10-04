@@ -16,6 +16,7 @@ from pathlib import Path
 from uuid import uuid4
 
 from .protocol import PROTOCOL_VERSION, EventReader
+from .runtime import launch_process
 from .storage import ProjectLock, atomic_write, json_text
 
 TERMINAL_STATES = {"stopped", "succeeded", "failed", "interrupted"}
@@ -217,7 +218,7 @@ class JobManager:
         value = str(
             job.parameters.get("config", {}).get("device", job.parameters.get("device", "cpu"))
         ).lower()
-        return {"auto": "cpu", "cuda": "0", "cuda:0": "0"}.get(value, value.removeprefix("cuda:"))
+        return {"cuda": "0", "cuda:0": "0"}.get(value, value.removeprefix("cuda:"))
 
     def active_jobs(self) -> list[Job]:
         with self._lock:
@@ -269,7 +270,10 @@ class JobManager:
                 if (
                     kind not in capture_only
                     and active.kind not in capture_only
-                    and self._device(job) == self._device(active)
+                    and (
+                        self._device(job) == self._device(active)
+                        or "auto" in (self._device(job), self._device(active))
+                    )
                 ):
                     raise RuntimeError(f"设备 {self._device(job)} 正被任务 {active.id[:8]} 使用")
             job.run_dir.mkdir()
@@ -309,7 +313,7 @@ class JobManager:
             stderr = (job.run_dir / "stderr.log").open("ab", buffering=0)
             try:
                 job._tree = _ProcessTree()
-                job._process = subprocess.Popen(
+                job._process = launch_process(
                     [
                         str(python),
                         "-m",

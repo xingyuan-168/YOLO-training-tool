@@ -17,6 +17,8 @@ manager.shutdown()
 
 状态：preparing → running → succeeded/failed；停止时 stopping → stopped；强制结束或监督器崩溃恢复时 interrupted。一次最多一个训练；同设备的 train/evaluate/export/infer/infer_stream/benchmark 互斥，capture/capture_stream 不占计算设备。标注与数据服务保持独立。
 
+设备为 AUTO 时实际选择由后端决定，因此保守占用计算资源，阻止与其他计算任务同时启动。运行状态仍展示 CQ_AI 实际选择的设备。
+
 开发布局的源码路径是 `app_root/src`，便携布局是 `app_root/app`；Python 路径由调用者提供。训练参数引用本地 PT 或受支持的 `yolov8[n/s/m/l/x].yaml`、`yolo11*.yaml`、`yolo26*.yaml` 架构。无路径的 PT 名会先查 `app_root/models`，缺失时明确失败。
 
 可分发字体从 `app_root/fonts/DejaVuSans.ttf` 与 `app_root/fonts/NotoSansSC.ttf` 读取，分别通过 YOLO_WORKBENCH_FONT / YOLO_WORKBENCH_FONT_CJK 传给 Worker；不下载字体，也不把系统 Arial 复制进包。

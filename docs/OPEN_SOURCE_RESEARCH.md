@@ -85,6 +85,14 @@ updated_at: 2026-10-04
 
 ## Decision
 
+### 打包、字体与运行环境实测补充
+
+- 使用 PyInstaller 6.22.3 的目录式打包，GUI 与训练、推理解释器分开。参考 https://pyinstaller.org/en/stable/common-issues-and-pitfalls.html ：启动外部 Python 前恢复 Windows DLL 搜索路径，创建后还原 GUI 路径。
+- 不直接复制 venv。便携 Worker 同时复制 Python 3.12 基础解释器、标准库和角色依赖，并检查隔离模式的 `sys.prefix/sys.path` 均属于目标目录。
+- 实际发现宿主工具 PATH 中的 Poppler ICU 与 Windows Qt 所需 ICU 同名但符号不同。构建 PATH 只允许所选 Python 与 Windows 系统目录，重建时删除旧的、已确认来源的 `_internal`，防止保留污染 DLL。
+- 使用官方 Noto Sans SC 字体解决离屏 Qt 中文缺字；来源 https://github.com/google/fonts/tree/main/ofl/notosanssc ，许可 OFL-1.1，下载脚本保存哈希和原许可。DejaVu Sans 从已锁定 Matplotlib 包提取，保留原许可。
+- 用于训练与导出数值回归的官方 Nano 权重来自 https://github.com/ultralytics/assets/releases/tag/v8.4.0 ，初次准备是显式操作，运行任务关闭自动安装和下载。首版各组件许可清单见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+
 decision: build
 reason: 自建项目数据、任务协议和 Qt 工作流；use Ultralytics、PySide6、Windows Capture、CQ_AI Wheel、NCNN；selective extract 仅在独立模块审查后实施。不重造训练框架、不分叉完整标注平台。
 

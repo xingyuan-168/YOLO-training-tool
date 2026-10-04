@@ -93,6 +93,14 @@ def test_stop_and_per_device_conflicts(manager):
     assert job.state == other.state == "stopped"
 
 
+def test_auto_device_reserves_unknown_accelerator(manager):
+    job = manager.start("infer_stream", {"mode": "wait", "device": "AUTO"})
+    with pytest.raises(RuntimeError, match="设备"):
+        manager.start("evaluate", {"device": "cuda:0"})
+    manager.stop(job.id)
+    wait_for(lambda: not manager.active_jobs())
+
+
 @pytest.mark.parametrize("mode,code", [("crash", "worker_exit"), ("invalid", "protocol_error")])
 def test_native_crash_and_protocol_noise_fail_visibly(manager, mode, code):
     job = manager.start("infer", {"mode": mode})

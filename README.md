@@ -1,56 +1,39 @@
 # YOLO 本地工作台
 
-面向 Windows 的个人 YOLO 标注、训练与部署验证工作台，采用 Python 3.12、PySide6、Ultralytics 和 CQ_AI 0.14.6。
+Windows 中文桌面工具：项目与图片导入、矩形标注、截图采集、数据检查与冻结、训练和完整恢复、标准评估、CQ_AI/NCNN/PT/ONNX 部署验证、模型导出及问题样本回流。
 
-当前已建立 M0 CPU 兼容基线、M1 四页交互原型和独立数据服务。生产 GUI 尚未实现，需要用户批准当前原型后进入 PySide6 阶段。完整产品的 M2–M6 验收尚未完成，不能把 HTML 原型作为成品。
+## 使用
 
-- input/：用户原始资料，只读。
-- output/：最终交付物，只放成品。
-- docs/：需求、范围、架构、开源调研与决策记录。
+便携入口：`output/YOLOWorkbench/YOLOWorkbench.exe`。保持整个目录一起移动，不单独复制 EXE。包内已包含独立 CPU 训练/推理环境、CQ_AI 0.14.6、YOLOv8n/11n/26n 官方权重和离线绘图字体。
 
-输入材料和模型不纳入 Git；运行环境、下载缓存和临时测试产物也不纳入 Git。
+操作步骤见 [中文使用说明](docs/USER_GUIDE.md)，实际检查、硬件范围和未验项目见 [首版验收报告](docs/reports/V1_ACCEPTANCE.md)。本机已验证 CPU 和 Intel DirectML；CUDA、TensorRT、AScript Android 真机需要目标设备验收。合成数据只证明流程，不表示业务准确率。
 
-开发分支：feat/yolo-workbench。治理使用已安装的 AI Engineering OS `aios` CLI，实际检查结果保存到阶段报告。
+## 源码运行
 
-## 查看原型
-
-直接用浏览器打开 `docs/design/PROTOTYPE.html`；该文件自包含，不需要构建或网络。配套交互规范在 `docs/design/UI_SPEC.md`。所有训练、指标和识别结果均为原型演示数据。
-
-也可本地启动：
-
-```powershell
-uv run --locked python -m http.server 8765 --bind 127.0.0.1 --directory docs/design
-```
-
-浏览器访问 `http://127.0.0.1:8765/PROTOTYPE.html`。
-
-## 开发与运行环境
-
-要求 Windows x64、uv 与 Python 3.12。开发环境和三个角色环境相互独立：
+要求 Windows x64、Python 3.12、uv。原始 `input/` 保持只读；Wheel 按 [vendor/README.md](vendor/README.md) 放入。
 
 ```powershell
 uv sync --locked --python 3.12
 uv run --locked python scripts/prepare_runtime.py gui
 uv run --locked python scripts/prepare_runtime.py train
 uv run --locked python scripts/prepare_runtime.py inference
-uv run --locked pytest -q
-uv run --locked ruff check src tests scripts
+.\.runtimes\train\Scripts\python.exe scripts/prepare_models.py --destination models
+.\.runtimes\train\Scripts\python.exe scripts/prepare_fonts.py
+.\.runtimes\gui\Scripts\python.exe -m yolo_workbench
 ```
 
-推理环境准备前，按 `vendor/README.md` 放入用户已有的 CQ_AI 0.14.6 Wheel；脚本先校验 SHA256，再安装到 `.runtimes/inference`，不会误用全局旧版本。该 Wheel 不从未知下载地址自动获取。
+准备命令显式联网；已有依赖缓存可给 prepare_runtime 添加 `--offline`。任务执行期间不会自动安装或升级。GUI 不加载 PyTorch、CQ DLL、NCNN 或 ONNX Runtime；后端在独立子进程运行。
 
-首次准备可下载依赖；已缓存后给准备命令添加 `--offline`。训练任务不调用准备命令、不静默升级包。CUDA/TensorRT 环境不属于当前 CPU 锁文件的验证结果。
-
-## 可复现兼容检查
-
-本机已提供的 `input/模型样板` 与 `input/UI-1.png` 保持只读。准备 train/inference 环境后运行：
+## 开发与验证
 
 ```powershell
+uv run --locked pytest -q
+uv run --locked ruff check src tests scripts
+.\.runtimes\gui\Scripts\python.exe -m pytest tests/test_desktop.py -q
 uv run --locked python scripts/smoke_compat.py
-# 只重跑某项
-uv run --locked python scripts/smoke_compat.py --only cq ncnn
 ```
 
-每项在独立进程运行，结果写入 `.artifacts/compat`。CQ 回归使用阈值 0 产生非空框，比较适配层与直接引擎输出；此阈值只用于测试，不是产品默认值。三代 Nano 架构随机初始化用于前向/ONNX 验证；CPU 训练使用合成六图，仅检验管线和完整检查点，不衡量业务准确率。
+GUI 测试需要 GUI 环境中安装锁定的开发测试依赖。真实训练/恢复/导出测试由 `YOLO_RUN_TRAINING_INTEGRATION=1` 和 `YOLO_TRAIN_PYTHON` 显式启用；数值一致性工具见 `scripts/validate_export_parity.py`。构建前在 GUI 环境准备 build 依赖组，再执行 `scripts/build_portable.py`；重建 GUI 使用 `--gui-only`，不会覆盖用户项目。
 
-已实现接口见 `docs/API_SPEC.md`，数据协议见 `docs/DATABASE.md`，实际进度和剩余验收见 `docs/reports/M0_M1_PROGRESS.md`。
+输入、权重、运行环境、生成数据和打包产物不进入 Git。接口见 [API_SPEC](docs/API_SPEC.md)，结构见 [ARCHITECTURE](docs/ARCHITECTURE.md)，复用及许可证见 [OPEN_SOURCE_RESEARCH](docs/OPEN_SOURCE_RESEARCH.md)。经用户批准的 HTML 只作设计依据，生产程序使用 PySide6。
+

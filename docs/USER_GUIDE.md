@@ -11,7 +11,7 @@
 5. 检查 `models/` 中的 `yolov8n.pt`、`yolo11n.pt`、`yolo26n.pt`。这三种 n 规格权重是当前预准备缓存；选择其他规格时需要对应的本地权重。
 6. 回到“标注训练”，新建或打开项目。依赖、字体和所需权重齐全后，标注、训练、评估和导出均可离线运行。运行任务时不会自动安装依赖或补下载权重。
 
-不需要在目标电脑额外安装开发工具。若运行环境文件缺失，应补齐完整便携包；“准备官方模型（需联网）”只准备模型权重，不能修复缺少的 Python 运行环境。
+不需要在目标电脑额外安装开发工具。若运行环境文件缺失，应补齐完整便携包；“准备所选训练模型（需联网）”只准备模型权重，不能修复缺少的 Python 运行环境。
 
 四个主入口的用途：
 
@@ -114,7 +114,7 @@
 
 离线时有两种选择：选择已存在的本地 PT 权重；或者勾选“从模型结构开始训练（随机初始化）”。随机初始化不需要预训练 PT，但实际效果仍依赖数据量和训练过程。
 
-联网准备时，可在“设置”点“准备官方模型（需联网）”，该按钮准备三种 n 权重。若要准备其他规格，在**便携包根目录**打开 PowerShell，例如：
+联网准备时，先在“标注训练”选择系列和规格，再在“设置”点“准备所选训练模型（需联网）”。该按钮准备当前选中的模型；也可以在**便携包根目录**打开 PowerShell，例如：
 
 ```powershell
 & .\runtime\train\python.exe .\scripts\prepare_models.py --destination .\models --models yolov8s.pt
@@ -213,7 +213,7 @@ $env:PYTHONPATH = Join-Path (Get-Location) 'app'
 | 项目 `project.json`、`labels.txt` | 项目信息、类别、已保存参数 |
 | 项目 `assets/`、`labels/`、`records/` | 托管图片、工作标签、审核及来源事实 |
 | 项目 `splits/`、`snapshots/` | 保存的划分、每次训练/评估的冻结数据 |
-| 项目 `runs/` | 各任务请求、事件、stderr.log、训练权重、指标和其他产物 |
+| 项目 `jobs/` | 各任务请求、事件、stderr.log、训练权重、指标和其他产物 |
 | 项目 `exports/` | 打开项目时生成的模型导出包 |
 | 项目 `history/`、`feedback/` | 类别迁移记录、问题样本及说明 |
 | 项目 `index.sqlite3` | 可从事实文件重建的检索索引 |
@@ -234,3 +234,5 @@ $env:PYTHONPATH = Join-Path (Get-Location) 'app'
 | 保存失败或任务失败 | 保留当前项目，查看“日志”和对应任务 stderr.log，确认磁盘空间、权限和运行环境后重试 |
 
 遇到错误时，记录项目路径、任务 ID、操作步骤，并使用“日志”的导出功能保存信息。更细的数据接口与恢复规则见 [DATA_WORKFLOWS.md](DATA_WORKFLOWS.md)，推理和采集能力说明见 [INFERENCE_CAPTURE.md](INFERENCE_CAPTURE.md)。
+
+若尚未进入界面就退出，查看 `userdata/startup-error.log`；交付目录不可写时，备用位置为 Windows 临时目录下的 `YOLOWorkbench-startup-error.log`。请保留完整便携目录，不要用其他 Python、Qt 或 OpenCV 安装中的同名 DLL 覆盖包内文件。
