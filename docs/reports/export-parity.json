@@ -1,0 +1,521 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-04T13:18:32.963018+00:00",
+  "passed": true,
+  "scope": "CPU FP32 pretrained nano export numerical acceptance; not application accuracy or Android acceptance",
+  "thresholds": {
+    "minimum_matching_iou": 0.99,
+    "maximum_score_difference": 0.001,
+    "exact_detection_count_and_classes": true,
+    "empty_both_is_pass": false
+  },
+  "preprocessing": "PIL RGB decode; OpenCV INTER_LINEAR letterbox with 114 padding; NCHW float32 / 255; 640 square",
+  "postprocessing": {
+    "confidence": 0.25,
+    "v8_v11": "shared class-aware NMS IoU .45, max_det300",
+    "yolo26": "shared end-to-end xyxy/score/class decoding, no additional NMS",
+    "matching": "per-class maximum-IoU linear assignment in original image coordinates"
+  },
+  "comparisons": [
+    {
+      "family": "yolov8",
+      "format": "onnx",
+      "profile": "cq",
+      "imgsz": 640,
+      "model_sha256": "f59b3d833e2ff32e194b5bb8e08d211dc7c5bdf144b90d2c8412c47ccfc83b36",
+      "export_files": {
+        "model.onnx": "8c81c5a29509b3528664ad44c88d9ec16be426789445cf7b630a78b88a721e7e"
+      },
+      "status": "passed",
+      "passed": true,
+      "real_nonempty_pass_count": 2,
+      "vacuous_case_count": 1,
+      "cases": [
+        {
+          "image": "bus.jpg",
+          "image_sha256": "c02019c4979c191eb739ddd944445ef408dad5679acab6fd520ef9d434bfbc63",
+          "tensor_sha256": "64d11ef4c1e470282a385f7d293607b639da2f40405c92238897253dd1e23f14",
+          "image_shape": [
+            1080,
+            810,
+            3
+          ],
+          "synthetic": false,
+          "reference_count": 5,
+          "candidate_count": 5,
+          "matched_count": 5,
+          "min_matched_iou": 0.9999992273615333,
+          "max_score_difference": 9.238719940185547e-07,
+          "unmatched_reference": 0,
+          "unmatched_candidate": 0,
+          "status": "passed",
+          "passed": true,
+          "raw_output_diagnostics": {
+            "reference_shape": [
+              1,
+              84,
+              8400
+            ],
+            "candidate_shape": [
+              1,
+              84,
+              8400
+            ],
+            "max_absolute_difference": 0.002197265625,
+            "mean_absolute_difference": 1.7538864706562823e-06,
+            "note": "Coordinate and probability channels share this diagnostic; acceptance uses detections."
+          }
+        },
+        {
+          "image": "zidane.jpg",
+          "image_sha256": "16d73869e3267a7d4ed00de8e860833bd1657c1b252e94c0c348277adc7b6edb",
+          "tensor_sha256": "a6c0d7d9e5403eec51446a5a61daa1e93bb746bc3692e8b743b41ed271812c48",
+          "image_shape": [
+            720,
+            1280,
+            3
+          ],
+          "synthetic": false,
+          "reference_count": 3,
+          "candidate_count": 3,
+          "matched_count": 3,
+          "min_matched_iou": 0.9999995185029228,
+          "max_score_difference": 3.2782554626464844e-07,
+          "unmatched_reference": 0,
+          "unmatched_candidate": 0,
+          "status": "passed",
+          "passed": true,
+          "raw_output_diagnostics": {
+            "reference_shape": [
+              1,
+              84,
+              8400
+            ],
+            "candidate_shape": [
+              1,
+              84,
+              8400
+            ],
+            "max_absolute_difference": 0.004547119140625,
+            "mean_absolute_difference": 2.1166248860699917e-06,
+            "note": "Coordinate and probability channels share this diagnostic; acceptance uses detections."
+          }
+        },
+        {
+          "image": "synthetic_ramp",
+          "image_sha256": "1c66bbe36cfb14b744ca710767184a52674724089ea715001a7f97e7d355a464",
+          "tensor_sha256": "ede46ba445dfbeac968b4fe704f2de3919bd23f43240b7023744d4327ef2d838",
+          "image_shape": [
+            480,
+            640,
+            3
+          ],
+          "synthetic": true,
+          "reference_count": 0,
+          "candidate_count": 0,
+          "matched_count": 0,
+          "min_matched_iou": null,
+          "max_score_difference": null,
+          "unmatched_reference": 0,
+          "unmatched_candidate": 0,
+          "status": "vacuous_no_detections",
+          "passed": null,
+          "raw_output_diagnostics": {
+            "reference_shape": [
+              1,
+              84,
+              8400
+            ],
+            "candidate_shape": [
+              1,
+              84,
+              8400
+            ],
+            "max_absolute_difference": 0.003143310546875,
+            "mean_absolute_difference": 2.9880310498168137e-06,
+            "note": "Coordinate and probability channels share this diagnostic; acceptance uses detections."
+          }
+        }
+      ],
+      "versions": {
+        "torch": "2.9.1+cpu",
+        "ultralytics": "8.4.7",
+        "onnxruntime": "1.23.2",
+        "ncnn": "1.0.20260526"
+      }
+    },
+    {
+      "family": "yolo11",
+      "format": "onnx",
+      "profile": "cq",
+      "imgsz": 640,
+      "model_sha256": "0ebbc80d4a7680d14987a577cd21342b65ecfd94632bd9a8da63ae6417644ee1",
+      "export_files": {
+        "model.onnx": "4b527cb8826f8872b923a580056aae69367f08adae3db86682bfe359db9d6063"
+      },
+      "status": "passed",
+      "passed": true,
+      "real_nonempty_pass_count": 2,
+      "vacuous_case_count": 1,
+      "cases": [
+        {
+          "image": "bus.jpg",
+          "image_sha256": "c02019c4979c191eb739ddd944445ef408dad5679acab6fd520ef9d434bfbc63",
+          "tensor_sha256": "64d11ef4c1e470282a385f7d293607b639da2f40405c92238897253dd1e23f14",
+          "image_shape": [
+            1080,
+            810,
+            3
+          ],
+          "synthetic": false,
+          "reference_count": 5,
+          "candidate_count": 5,
+          "matched_count": 5,
+          "min_matched_iou": 0.9999991246737854,
+          "max_score_difference": 3.5762786865234375e-07,
+          "unmatched_reference": 0,
+          "unmatched_candidate": 0,
+          "status": "passed",
+          "passed": true,
+          "raw_output_diagnostics": {
+            "reference_shape": [
+              1,
+              84,
+              8400
+            ],
+            "candidate_shape": [
+              1,
+              84,
+              8400
+            ],
+            "max_absolute_difference": 0.00726318359375,
+            "mean_absolute_difference": 3.307444671909427e-06,
+            "note": "Coordinate and probability channels share this diagnostic; acceptance uses detections."
+          }
+        },
+        {
+          "image": "zidane.jpg",
+          "image_sha256": "16d73869e3267a7d4ed00de8e860833bd1657c1b252e94c0c348277adc7b6edb",
+          "tensor_sha256": "a6c0d7d9e5403eec51446a5a61daa1e93bb746bc3692e8b743b41ed271812c48",
+          "image_shape": [
+            720,
+            1280,
+            3
+          ],
+          "synthetic": false,
+          "reference_count": 3,
+          "candidate_count": 3,
+          "matched_count": 3,
+          "min_matched_iou": 0.9999995767850802,
+          "max_score_difference": 5.960464477539062e-07,
+          "unmatched_reference": 0,
+          "unmatched_candidate": 0,
+          "status": "passed",
+          "passed": true,
+          "raw_output_diagnostics": {
+            "reference_shape": [
+              1,
+              84,
+              8400
+            ],
+            "candidate_shape": [
+              1,
+              84,
+              8400
+            ],
+            "max_absolute_difference": 0.021026611328125,
+            "mean_absolute_difference": 5.1923711874293214e-06,
+            "note": "Coordinate and probability channels share this diagnostic; acceptance uses detections."
+          }
+        },
+        {
+          "image": "synthetic_ramp",
+          "image_sha256": "1c66bbe36cfb14b744ca710767184a52674724089ea715001a7f97e7d355a464",
+          "tensor_sha256": "ede46ba445dfbeac968b4fe704f2de3919bd23f43240b7023744d4327ef2d838",
+          "image_shape": [
+            480,
+            640,
+            3
+          ],
+          "synthetic": true,
+          "reference_count": 0,
+          "candidate_count": 0,
+          "matched_count": 0,
+          "min_matched_iou": null,
+          "max_score_difference": null,
+          "unmatched_reference": 0,
+          "unmatched_candidate": 0,
+          "status": "vacuous_no_detections",
+          "passed": null,
+          "raw_output_diagnostics": {
+            "reference_shape": [
+              1,
+              84,
+              8400
+            ],
+            "candidate_shape": [
+              1,
+              84,
+              8400
+            ],
+            "max_absolute_difference": 0.0093231201171875,
+            "mean_absolute_difference": 5.5699886846706376e-06,
+            "note": "Coordinate and probability channels share this diagnostic; acceptance uses detections."
+          }
+        }
+      ],
+      "versions": {
+        "torch": "2.9.1+cpu",
+        "ultralytics": "8.4.7",
+        "onnxruntime": "1.23.2",
+        "ncnn": "1.0.20260526"
+      }
+    },
+    {
+      "family": "yolo26",
+      "format": "onnx",
+      "profile": "generic",
+      "imgsz": 640,
+      "model_sha256": "9b09cc8bf347f0fc8a5f7657480587f25db09b34bf33b0652110fb03a8ad4fef",
+      "export_files": {
+        "model.onnx": "11c8c683a3f1ad03f69efedd0d3cdbec5bd5f9d7cc4d82efb1f16fcd7fb6a3ce"
+      },
+      "status": "passed",
+      "passed": true,
+      "real_nonempty_pass_count": 2,
+      "vacuous_case_count": 1,
+      "cases": [
+        {
+          "image": "bus.jpg",
+          "image_sha256": "c02019c4979c191eb739ddd944445ef408dad5679acab6fd520ef9d434bfbc63",
+          "tensor_sha256": "64d11ef4c1e470282a385f7d293607b639da2f40405c92238897253dd1e23f14",
+          "image_shape": [
+            1080,
+            810,
+            3
+          ],
+          "synthetic": false,
+          "reference_count": 5,
+          "candidate_count": 5,
+          "matched_count": 5,
+          "min_matched_iou": 0.9999993712171947,
+          "max_score_difference": 6.556510925292969e-07,
+          "unmatched_reference": 0,
+          "unmatched_candidate": 0,
+          "status": "passed",
+          "passed": true,
+          "raw_output_diagnostics": {
+            "reference_shape": [
+              1,
+              300,
+              6
+            ],
+            "candidate_shape": [
+              1,
+              300,
+              6
+            ],
+            "note": "End-to-end topk row order is not a numerical invariant; detections are assigned by class/IoU."
+          }
+        },
+        {
+          "image": "zidane.jpg",
+          "image_sha256": "16d73869e3267a7d4ed00de8e860833bd1657c1b252e94c0c348277adc7b6edb",
+          "tensor_sha256": "a6c0d7d9e5403eec51446a5a61daa1e93bb746bc3692e8b743b41ed271812c48",
+          "image_shape": [
+            720,
+            1280,
+            3
+          ],
+          "synthetic": false,
+          "reference_count": 3,
+          "candidate_count": 3,
+          "matched_count": 3,
+          "min_matched_iou": 0.9999987891810372,
+          "max_score_difference": 4.172325134277344e-07,
+          "unmatched_reference": 0,
+          "unmatched_candidate": 0,
+          "status": "passed",
+          "passed": true,
+          "raw_output_diagnostics": {
+            "reference_shape": [
+              1,
+              300,
+              6
+            ],
+            "candidate_shape": [
+              1,
+              300,
+              6
+            ],
+            "note": "End-to-end topk row order is not a numerical invariant; detections are assigned by class/IoU."
+          }
+        },
+        {
+          "image": "synthetic_ramp",
+          "image_sha256": "1c66bbe36cfb14b744ca710767184a52674724089ea715001a7f97e7d355a464",
+          "tensor_sha256": "ede46ba445dfbeac968b4fe704f2de3919bd23f43240b7023744d4327ef2d838",
+          "image_shape": [
+            480,
+            640,
+            3
+          ],
+          "synthetic": true,
+          "reference_count": 0,
+          "candidate_count": 0,
+          "matched_count": 0,
+          "min_matched_iou": null,
+          "max_score_difference": null,
+          "unmatched_reference": 0,
+          "unmatched_candidate": 0,
+          "status": "vacuous_no_detections",
+          "passed": null,
+          "raw_output_diagnostics": {
+            "reference_shape": [
+              1,
+              300,
+              6
+            ],
+            "candidate_shape": [
+              1,
+              300,
+              6
+            ],
+            "note": "End-to-end topk row order is not a numerical invariant; detections are assigned by class/IoU."
+          }
+        }
+      ],
+      "versions": {
+        "torch": "2.9.1+cpu",
+        "ultralytics": "8.4.7",
+        "onnxruntime": "1.23.2",
+        "ncnn": "1.0.20260526"
+      }
+    },
+    {
+      "family": "yolov8",
+      "format": "ncnn",
+      "profile": "ascript_v8",
+      "imgsz": 640,
+      "model_sha256": "f59b3d833e2ff32e194b5bb8e08d211dc7c5bdf144b90d2c8412c47ccfc83b36",
+      "export_files": {
+        "model.ncnn.bin": "1a546699e03a5f05a3c0448429fdb50f4fe5e41749272078c78a45def9a399e3",
+        "model.ncnn.param": "7e6952314141c372f190b2d03047230d2e035280d31ecb1965ae9e539a90b013"
+      },
+      "status": "passed",
+      "passed": true,
+      "real_nonempty_pass_count": 2,
+      "vacuous_case_count": 1,
+      "cases": [
+        {
+          "image": "bus.jpg",
+          "image_sha256": "c02019c4979c191eb739ddd944445ef408dad5679acab6fd520ef9d434bfbc63",
+          "tensor_sha256": "64d11ef4c1e470282a385f7d293607b639da2f40405c92238897253dd1e23f14",
+          "image_shape": [
+            1080,
+            810,
+            3
+          ],
+          "synthetic": false,
+          "reference_count": 5,
+          "candidate_count": 5,
+          "matched_count": 5,
+          "min_matched_iou": 0.9999990027520373,
+          "max_score_difference": 7.152557373046875e-07,
+          "unmatched_reference": 0,
+          "unmatched_candidate": 0,
+          "status": "passed",
+          "passed": true,
+          "raw_output_diagnostics": {
+            "reference_shape": [
+              1,
+              84,
+              8400
+            ],
+            "candidate_shape": [
+              84,
+              8400
+            ],
+            "max_absolute_difference": 0.00421142578125,
+            "mean_absolute_difference": 2.6724556391996316e-06,
+            "note": "Coordinate and probability channels share this diagnostic; acceptance uses detections."
+          }
+        },
+        {
+          "image": "zidane.jpg",
+          "image_sha256": "16d73869e3267a7d4ed00de8e860833bd1657c1b252e94c0c348277adc7b6edb",
+          "tensor_sha256": "a6c0d7d9e5403eec51446a5a61daa1e93bb746bc3692e8b743b41ed271812c48",
+          "image_shape": [
+            720,
+            1280,
+            3
+          ],
+          "synthetic": false,
+          "reference_count": 3,
+          "candidate_count": 3,
+          "matched_count": 3,
+          "min_matched_iou": 0.9999986098085306,
+          "max_score_difference": 7.152557373046875e-07,
+          "unmatched_reference": 0,
+          "unmatched_candidate": 0,
+          "status": "passed",
+          "passed": true,
+          "raw_output_diagnostics": {
+            "reference_shape": [
+              1,
+              84,
+              8400
+            ],
+            "candidate_shape": [
+              84,
+              8400
+            ],
+            "max_absolute_difference": 0.006805419921875,
+            "mean_absolute_difference": 3.2455756465613747e-06,
+            "note": "Coordinate and probability channels share this diagnostic; acceptance uses detections."
+          }
+        },
+        {
+          "image": "synthetic_ramp",
+          "image_sha256": "1c66bbe36cfb14b744ca710767184a52674724089ea715001a7f97e7d355a464",
+          "tensor_sha256": "ede46ba445dfbeac968b4fe704f2de3919bd23f43240b7023744d4327ef2d838",
+          "image_shape": [
+            480,
+            640,
+            3
+          ],
+          "synthetic": true,
+          "reference_count": 0,
+          "candidate_count": 0,
+          "matched_count": 0,
+          "min_matched_iou": null,
+          "max_score_difference": null,
+          "unmatched_reference": 0,
+          "unmatched_candidate": 0,
+          "status": "vacuous_no_detections",
+          "passed": null,
+          "raw_output_diagnostics": {
+            "reference_shape": [
+              1,
+              84,
+              8400
+            ],
+            "candidate_shape": [
+              84,
+              8400
+            ],
+            "max_absolute_difference": 0.00482177734375,
+            "mean_absolute_difference": 3.7747321034599073e-06,
+            "note": "Coordinate and probability channels share this diagnostic; acceptance uses detections."
+          }
+        }
+      ],
+      "versions": {
+        "torch": "2.9.1+cpu",
+        "ultralytics": "8.4.7",
+        "onnxruntime": "1.23.2",
+        "ncnn": "1.0.20260526"
+      }
+    }
+  ]
+}
